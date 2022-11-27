@@ -1,0 +1,189 @@
+ {
+  "description" : "#SD-PPPJ-MYZ",
+  "persons" : [ {
+    "id" : "PPPJ-MYZ",
+    "attribution" : {
+      "changeMessage" : "wikipedia knows"
+    },
+    "living" : false,
+    "gender" : {
+      "type" : "http://gedcomx.org/Male"
+    },
+    "links" : {
+      "spouses" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/spouses?flag=fsh"
+      },
+      "change-history" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/changes?flag=fsh"
+      },
+      "ancestry" : {
+        "href" : "https://api.familysearch.org/platform/tree/ancestry?flag=fsh&person=PPPJ-MYZ"
+      },
+      "notes" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/notes?flag=fsh"
+      },
+      "non-matches" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/not-a-match?flag=fsh"
+      },
+      "portraits" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/portraits?flag=fsh"
+      },
+      "collection" : {
+        "href" : "https://api.familysearch.org/collections/tree?flag=fsh"
+      },
+      "families" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/families?flag=fsh"
+      },
+      "portrait" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/portrait?flag=fsh"
+      },
+      "matches" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/matches?flag=fsh"
+      },
+      "children" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/children?flag=fsh"
+      },
+      "descendancy" : {
+        "href" : "https://api.familysearch.org/platform/tree/descendancy?flag=fsh&person=PPPJ-MYZ"
+      },
+      "person" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ?flag=fsh"
+      },
+      "source-descriptions" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/sources?flag=fsh"
+      },
+      "merge" : {
+        "template" : "https://api.familysearch.org/platform/tree/persons/{pid}/merges/{dpid}?flag=fst{&access_token,filter}",
+        "type" : "application/json,application/x-fs-v1+json,application/x-fs-v1+xml,application/xml,text/html",
+        "accept" : "application/x-fs-v1+json,application/x-fs-v1+xml",
+        "allow" : "GET,OPTIONS,POST",
+        "title" : "Person Merge"
+      },
+      "artifacts" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/memories?flag=fsh"
+      },
+      "parents" : {
+        "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/parents?flag=fsh"
+      }
+    },
+    "identifiers" : {
+      "http://gedcomx.org/Persistent" : [ "https://familysearch.org/ark:/61903/4:1:PPPJ-MYZ" ]
+    },
+    "names" : [ {
+      "id" : "name-id",
+      "attribution" : {
+        "contributor" : {
+          "resource" : "urn:name-attribution",
+          "resourceId" : "KNCV-RMZ"
+        }
+      },
+      "type" : "http://gedcomx.org/BirthName",
+      "preferred" : true,
+      "links" : {
+        "conclusion" : {
+          "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/conclusions/name-id?flag=fsh"
+        }
+      },
+      "nameForms" : [ {
+        "fullText" : "Alex Aleksandrova",
+        "parts" : [ {
+          "type" : "http://gedcomx.org/Given",
+          "value" : "Alex"
+        }, {
+          "type" : "http://gedcomx.org/Surname",
+          "value" : "Aleksandrova"
+        } ]
+      }, {
+        "fullText" : "Анастасия Александрова",
+        "parts" : [ {
+          "type" : "http://gedcomx.org/Given",
+          "value" : "Анастасия"
+        }, {
+          "type" : "http://gedcomx.org/Surname",
+          "value" : "Александрова"
+        } ]
+      } ]
+    } ],
+    "facts" : [ {
+      "id" : "born",
+      "attribution" : {
+        "contributor" : {
+          "resource" : "urn:fact-attribution",
+          "resourceId" : "RMQW-LPK"
+        }
+      },
+      "type" : "http://gedcomx.org/Birth",
+      "date" : {
+        "original" : "3 Apr 1836",
+        "formal" : "+1836"
+      },
+      "place" : {
+        "original" : "Moscow, Russia",
+        "normalized" : [ {
+          "lang" : "en",
+          "value" : "Moscow, Moskva, Russia"
+        } ]
+      },
+      "links" : {
+        "conclusion" : {
+          "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/conclusions/born?flag=fsh"
+        }
+      }
+    }, {
+      "id" : "res",
+      "attribution" : {
+        "contributor" : {
+          "resource" : "https://api.familysearch.org/platform/users/agents/JNYR-KJP",
+          "resourceId" : "JNYR-KJP"
+        }
+      },
+      "type" : "http://gedcomx.org/Residence",
+      "date" : {
+        "original" : "13 Apr 1836",
+        "formal" : "+1836-04-13"
+      },
+      "place" : {
+        "original" : "Moscow, Russia",
+        "normalized" : [ {
+          "value" : "Moskva, Moscow, Russia"
+        } ]
+      },
+      "links" : {
+        "conclusion" : {
+          "href" : "https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/conclusions/res?flag=fsh"
+        }
+      }
+    } ],
+    "display" : {
+      "name" : "Alex Aleksandrova",
+      "gender" : "Male",
+      "lifespan" : "3 Apr 1836 - Dead",
+      "birthDate" : "3 Apr 1836",
+      "birthPlace" : "Moscow, Russia"
+    }
+  } ],
+  "sourceDescriptions" : [ {
+    "id" : "SD-PPPJ-MYZ",
+    "about" : "#PPPJ-MYZ",
+    "componentOf" : {
+      "description" : "https://api.familysearch.org/platform/collections/tree"
+    },
+    "resourceType" : "http://gedcomx.org/Person",
+    "modified" : 1543677067000,
+    "links" : {
+      "description" : {
+        "href" : "https://api.familysearch.org/sources/descriptions/SD-PPPJ-MYZ?flag=fsh"
+      }
+    },
+    "citations" : [ {
+      "lang" : "en",
+      "value" : "\"Family Tree,\" database, <i>FamilySearch</i> (http://familysearch.org : modified 01 December 2018, 08:11), entry for Alex Aleksandrova(PID https://familysearch.org/ark:/61903/4:1:PPPJ-MYZ); contributed by various users."
+    } ],
+    "titles" : [ {
+      "value" : "Alex Aleksandrova"
+    } ],
+    "identifiers" : {
+      "http://gedcomx.org/Persistent" : [ "https://familysearch.org/ark:/61903/4:1:PPPJ-MYZ" ]
+    }
+  } ]
+}

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gedcomx xmlns:fs="http://familysearch.org/v1/" xmlns="http://gedcomx.org/v1/" xmlns:atom="http://www.w3.org/2005/Atom" description="#SD-PPPJ-MYZ">
+    <person id="PPPJ-MYZ">
+        <link rel="ancestry" href="https://api.familysearch.org/platform/tree/ancestry?flag=fsh&amp;person=PPPJ-MYZ"/>
+        <link rel="artifacts" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/memories?flag=fsh"/>
+        <link rel="change-history" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/changes?flag=fsh"/>
+        <link rel="children" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/children?flag=fsh"/>
+        <link rel="collection" href="https://api.familysearch.org/collections/tree?flag=fsh"/>
+        <link rel="descendancy" href="https://api.familysearch.org/platform/tree/descendancy?flag=fsh&amp;person=PPPJ-MYZ"/>
+        <link rel="families" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/families?flag=fsh"/>
+        <link rel="matches" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/matches?flag=fsh"/>
+        <link rel="merge" template="https://api.familysearch.org/platform/tree/persons/{pid}/merges/{dpid}?flag=fst{&amp;access_token,filter}" title="Person Merge" type="application/json,application/x-fs-v1+json,application/x-fs-v1+xml,application/xml,text/html" accept="application/x-fs-v1+json,application/x-fs-v1+xml" allow="GET,OPTIONS,POST"/>
+        <link rel="non-matches" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/not-a-match?flag=fsh"/>
+        <link rel="notes" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/notes?flag=fsh"/>
+        <link rel="parents" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/parents?flag=fsh"/>
+        <link rel="person" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ?flag=fsh"/>
+        <link rel="portrait" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/portrait?flag=fsh"/>
+        <link rel="portraits" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/portraits?flag=fsh"/>
+        <link rel="source-descriptions" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/sources?flag=fsh"/>
+        <link rel="spouses" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/spouses?flag=fsh"/>
+        <attribution>
+            <changeMessage>wikipedia knows</changeMessage>
+        </attribution>
+        <identifier type="http://gedcomx.org/Persistent">https://familysearch.org/ark:/61903/4:1:PPPJ-MYZ</identifier>
+        <living>true</living>
+        <gender type="http://gedcomx.org/Male"/>
+        <name type="http://gedcomx.org/BirthName" id="name-id">
+            <link rel="conclusion" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/conclusions/name-id?flag=fsh"/>
+            <attribution>
+                <contributor resource="urn:name-attribution" resourceId="KNCV-RMZ"/>
+            </attribution>
+            <preferred>true</preferred>
+            <nameForm>
+                <fullText>Alex Aleksandrova</fullText>
+                <part type="http://gedcomx.org/Given" value="Alex"/>
+                <part type="http://gedcomx.org/Surname" value="Aleksandrova"/>
+            </nameForm>
+            <nameForm>
+                <fullText>Анастасия Александрова</fullText>
+                <part type="http://gedcomx.org/Given" value="Анастасия"/>
+                <part type="http://gedcomx.org/Surname" value="Александрова"/>
+            </nameForm>
+        </name>
+        <fact type="http://gedcomx.org/Birth" id="born">
+            <link rel="conclusion" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/conclusions/born?flag=fsh"/>
+            <attribution>
+                <contributor resource="urn:fact-attribution" resourceId="RMQW-LPK"/>
+            </attribution>
+            <date>
+                <original>3 Apr 1836</original>
+                <formal>+1836</formal>
+            </date>
+            <place>
+                <original>Moscow, Russia</original>
+                <normalized xml:lang="en">Moscow, Moskva, Russia</normalized>
+            </place>
+        </fact>
+        <fact type="http://gedcomx.org/Residence" id="res">
+            <link rel="conclusion" href="https://api.familysearch.org/platform/tree/persons/PPPJ-MYZ/conclusions/res?flag=fsh"/>
+            <attribution>
+                <contributor resource="https://api.familysearch.org/platform/users/agents/JNYR-KJP" resourceId="JNYR-KJP"/>
+            </attribution>
+            <date>
+                <original>13 Apr 1836</original>
+                <formal>+1836-04-13</formal>
+            </date>
+            <place>
+                <original>Moscow, Russia</original>
+                <normalized>Moskva, Moscow, Russia</normalized>
+            </place>
+        </fact>
+        <display>
+            <birthDate>3 Apr 1836</birthDate>
+            <birthPlace>Moscow, Russia</birthPlace>
+            <gender>Male</gender>
+            <lifespan>3 Apr 1836 - Dead</lifespan>
+            <name>Alex Aleksandrova</name>
+        </display>
+    </person>
+    <sourceDescription about="#PPPJ-MYZ" resourceType="http://gedcomx.org/Person" id="SD-PPPJ-MYZ">
+        <link rel="description" href="https://api.familysearch.org/sources/descriptions/SD-PPPJ-MYZ?flag=fsh"/>
+        <citation xml:lang="en">
+            <value>"Family Tree," database, &lt;i&gt;FamilySearch&lt;/i&gt; (http://familysearch.org : modified 01 December 2018, 08:11), entry for Alex Aleksandrova(PID https://familysearch.org/ark:/61903/4:1:PPPJ-MYZ); contributed by various users.</value>
+        </citation>
+        <componentOf description="https://api.familysearch.org/platform/collections/tree"/>
+        <title>Alex Aleksandrova</title>
+        <identifier type="http://gedcomx.org/Persistent">https://familysearch.org/ark:/61903/4:1:PPPJ-MYZ</identifier>
+        <modified>2018-12-01T08:11:07-07:00</modified>
+    </sourceDescription>
+</gedcomx>
