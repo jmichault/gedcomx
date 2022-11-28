@@ -32,7 +32,7 @@ def akiri_persono_de_url(fsid):
   # ensaluti al FamilySearch se necese
   if fs_sesio is None:
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
-    if not fs_pasvorto : fs_uzanto = input("Enigu FamilySearch pasvorton:")
+    if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
     fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
   
   datumoj = fs_sesio.get_url("/platform/tree/persons/"+fsid
