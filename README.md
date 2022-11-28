@@ -44,7 +44,7 @@ Por pliaj informoj pri gedcomx-formaton, vidu:
 # Promocio
 
 ```sh
-python3 -m pip install --upgrade --force-reinstall gedcomx
+python3 -m pip install --upgrade --force-reinstall gedcomx-v1
 ```
 
 # Ekzemploj
