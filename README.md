@@ -38,7 +38,7 @@ Por pliaj informoj pri gedcomx-formaton, vidu:
 
 3. Instalu gedcomx
     ```sh
-    python3 -m pip install gedcomx
+    python3 -m pip install gedcomx-v1
     ```
 
 # Promocio
