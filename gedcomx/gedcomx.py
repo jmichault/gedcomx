@@ -29,14 +29,14 @@ from ._utila import all_annotations, klaso_ini
 
 # gedcomx klasoj
 class ExtensibleData:
+  _indekso = None
   id: str
-  _indekso: dict = dict()
   def __init__(self,id=None,tree=None):
     klaso_ini(self)
-    if id:
+    if id and cls._indekso:
       self.__class__._indekso[id]=self
   def __new__(cls,id=None,tree=None):
-    if id and id in cls._indekso:
+    if id and cls._indekso and id in cls._indekso:
       return cls._indekso[id]
     else:
       return super(ExtensibleData, cls).__new__(cls)
@@ -252,7 +252,6 @@ class NameForm(ExtensibleData):
     return False
 
 class Name(Conclusion):
-  _indekso: dict = dict()
   preferred: bool
   date: Date
   nameForms: set[NameForm]
