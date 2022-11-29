@@ -87,6 +87,7 @@ class Tag:
   resource: str
 
 class SourceReference(HypermediaEnabledData):
+  _indekso: dict = dict()
   description: str
   descriptionId: str
   attribution: Attribution
@@ -217,6 +218,7 @@ class HasDateAndPlace:
     klaso_ini(self)
 
 class Fact(Conclusion):
+  _indekso: dict = dict()
   date: Date
   place: PlaceReference
   value: str
@@ -250,6 +252,7 @@ class NameForm(ExtensibleData):
     return False
 
 class Name(Conclusion):
+  _indekso: dict = dict()
   preferred: bool
   date: Date
   nameForms: set[NameForm]
@@ -286,6 +289,7 @@ class Name(Conclusion):
     return ''
 
 class EvidenceReference(HypermediaEnabledData):
+  _indekso: dict = dict()
   resource: str
   resourceId: str
   attribution: Attribution
@@ -308,6 +312,7 @@ class PersonInfo:
     klaso_ini(self)
 
 class Relationship(Subject):
+  _indekso: dict = dict()
   person1: ResourceReference
   person2: ResourceReference
   facts: set[Fact]
@@ -315,12 +320,42 @@ class Relationship(Subject):
   def postmaljsonigi(self,d):
   #  """ 
   #  """
-    if self.type == 'http://gedcomx.org/ParentChild' and self.person2:
-      if self.person2.resourceId in Person._indekso :
+    if self.type == 'http://gedcomx.org/ParentChild' :
+      if self.person2 and self.person2.resourceId in Person._indekso :
         child = Person._indekso[self.person2.resourceId]
-        child._parents.add(self)
+        child._gepatroj.add(self)
+      if self.person1 and self.person1.resourceId in Person._indekso :
+        parent = Person._indekso[self.person1.resourceId]
+        parent._infanoj.add(self)
+    if self.type == 'http://gedcomx.org/Couple' :
+      if self.person1 and self.person1.resourceId in Person._indekso :
+        edzo = Person._indekso[self.person1.resourceId]
+        edzo._paroj.add(self)
+      if self.person2 and self.person2.resourceId in Person._indekso :
+        edzo = Person._indekso[self.person2.resourceId]
+        edzo._paroj.add(self)
+
+class ChildAndParentsRelationship(Subject):
+  _indekso: dict = dict()
+  # https://www.familysearch.org/developers/docs/api/types/json_ChildAndParentsRelationship
+  parent1: ResourceReference
+  parent2: ResourceReference
+  child: ResourceReference
+  parent1Facts: set[Fact]
+  parent2Facts: set[Fact]
+  def postmaljsonigi(self,d):
+   if self.child and self.child.resourceId in Person._indekso :
+     child = Person._indekso[self.child.resourceId]
+     child._gepatrojCP.add(self)
+   if self.parent1 and self.parent1.resourceId in Person._indekso :
+     parent = Person._indekso[self.parent1.resourceId]
+     parent._infanojCP.add(self)
+   if self.parent2 and self.parent2.resourceId in Person._indekso :
+     parent = Person._indekso[self.parent2.resourceId]
+     parent._infanojCP.add(self)
 
 class Person(Subject):
+  _indekso: dict = dict()
   private: bool
   living: bool
   gender: Gender
@@ -328,7 +363,11 @@ class Person(Subject):
   facts: set[Fact]
   display: DisplayProperties
   personInfo: set[PersonInfo]  # family search !
-  _parents: set[Relationship]
+  _gepatroj: set[Relationship]
+  _infanoj: set[Relationship]
+  _paroj: set[Relationship]
+  _infanojCP: set[ChildAndParentsRelationship]
+  _gepatrojCP: set[ChildAndParentsRelationship]
   def akPrefNomo(self):
     """ akiri preferatan nomon
     """
@@ -447,6 +486,7 @@ class PlaceDisplayProperties(ExtensibleData):
   type: str
 
 class PlaceDescription(Subject):
+  _indekso: dict = dict()
   names: set[TextValue]
   temporalDescription: Date
   latitude: float
@@ -458,15 +498,8 @@ class PlaceDescription(Subject):
   type: str
 
 class Gender(Conclusion):
+  _indekso: dict = dict()
   type: str
-
-class ChildAndParentsRelationship(Subject):
-  # https://www.familysearch.org/developers/docs/api/types/json_ChildAndParentsRelationship
-  parent1: ResourceReference
-  parent2: ResourceReference
-  child: ResourceReference
-  parent1Facts: set[Fact]
-  parent2Facts: set[Fact]
 
 class Gedcomx(HypermediaEnabledData):
   # de https://github.com/FamilySearch/gedcomx/blob/master/specifications/xml-format-specification.md#gedcomx-type

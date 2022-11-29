@@ -230,11 +230,12 @@ class FsSession:
             #    self.write_log("WARNING: corrupted file from %s, error: %s" % (url, e))
             #    print(r.content)
             #    return None
-    def get_jsonurl(self,url):
+    def get_jsonurl(self, url, headers=None):
         r = self.get_url(url)
-        try:
+        if r:
+          try:
             return r.json()
-        except Exception as e:
+          except Exception as e:
             self.write_log("WARNING: corrupted file from %s, error: %s" % (url, e))
             print(r.content)
             return None
