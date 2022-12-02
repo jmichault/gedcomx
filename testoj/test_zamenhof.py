@@ -29,6 +29,7 @@ def akiri_persono_de_url(fsid):
   global fs_sesio
   global fs_uzanto
   global fs_pasvorto
+  global arbo
   # ensaluti al FamilySearch se necese
   if fs_sesio is None:
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
@@ -36,7 +37,7 @@ def akiri_persono_de_url(fsid):
     fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
   
   datumoj = fs_sesio.get_url("/platform/tree/persons/"+fsid
-            ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "eo"} )
+            ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "fr"} )
   gedcomx.maljsonigi(arbo,datumoj.json())
   # 
   f = open('rezultoj/person.'+fsid+'.fs.json','wb')
@@ -49,10 +50,25 @@ def akiri_persono_de_dosiero(fsid):
   f.close()
   gedcomx.maljsonigi(arbo, json.loads(datumoj))
 
+def akiri_gepatroj(arbo,fsid):
+  persono = gedcomx.Person._indekso[fsid]
+  rels = set()
+  for paro in persono._gepatroj :
+    rels |= {paro.person1.resourceId , paro.person2.resourceId }
+  for cp in persono._gepatrojCP :
+    rels |= {cp.parent1.resourceId , cp.parent2.resourceId }
+  rels.difference_update({fsid})
+  for fsid in rels:
+    if exists('rezultoj/person.'+fsid+'.fs.json'):
+      akiri_persono_de_dosiero(fsid)
+    else:
+      akiri_persono_de_url(fsid)
+
 if exists('rezultoj/person.'+fsid+'.fs.json'):
   akiri_persono_de_dosiero(fsid)
 else:
   akiri_persono_de_url(fsid)
+akiri_gepatroj(arbo,fsid)
 
 rezulto = gedcomx.jsonigi(arbo)
 

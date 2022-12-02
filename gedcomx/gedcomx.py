@@ -86,6 +86,32 @@ class Attribution(ExtensibleData):
 class Tag:
   resource: str
 
+class OnlineAccount(ExtensibleData):
+  serviceHomepage: ResourceReference
+  accountName: str
+
+class TextValue:
+  lang: str
+  value: str
+  def __init__(self):
+    klaso_ini(self)
+  def iseq(self,other):
+    if isinstance(other,TextValue):
+      return (self.lang == other.lang and self.value == other.value)
+    return False
+
+# https://www.familysearch.org/developers/docs/api/types/json_Agent
+class Agent(HypermediaEnabledData):
+  identifiers: dict[str]
+  names: set[TextValue]
+  homepage: ResourceReference
+  openid: ResourceReference
+  accounts: set[OnlineAccount]
+  emails: set [ResourceReference]
+  phones: set [ResourceReference]
+  addresses: set [ResourceReference]
+  person: ResourceReference
+
 class SourceReference(HypermediaEnabledData):
   _indekso: dict = dict()
   description: str
@@ -99,16 +125,6 @@ class ReferencesSources:
   sources: set[SourceReference]
   def __init__(self):
     klaso_ini(self)
-
-class TextValue:
-  lang: str
-  value: str
-  def __init__(self):
-    klaso_ini(self)
-  def iseq(self,other):
-    if isinstance(other,TextValue):
-      return (self.lang == other.lang and self.value == other.value)
-    return False
 
 class VocabElement:
   id: str
@@ -379,35 +395,43 @@ class Coverage(HypermediaEnabledData):
   spatial: PlaceReference
   temporal: Date
 
-class SourceDescription(HypermediaEnabledData):
+# familySearch extension
+# https://www.familysearch.org/developers/docs/api/types/json_ArtifactMetadata
+class artifactMetadata:
+  filename: str
+  qualifiers: set[Qualifier]
+  width: int
+  height: int
+  size: int
+  screeningState: str
+  displayState: str
+  editable: bool
+
+class SourceDescription(Conclusion):
+  _indekso: dict = dict()
   citations: set[SourceCitation]
   mediator: ResourceReference
   publisher: ResourceReference
   authors: set[str]
-  sources: set[SourceReference]
-  analysis: ResourceReference
   componentOf: SourceReference
   titles: set[TextValue]
-  notes: set[Note]
-  attribution: Attribution
   identifiers: dict[str,set]
   rights: set[str]
   replacedBy: str
   replaces: set[str]
   statuses: set[str]
-  lang: str
   about: str
   version: str
   resourceType: str
   mediaType: str
-
-  mediator: str
   coverage: set[Coverage]
   descriptions: set[TextValue]
   created: int
   modified: int
   published: int
-  repository: str
+  repository: Agent
+  ### familySearch extension
+  artifactMetadata: set[artifactMetadata]
   #def postmaljsonigi(self,d):
   #  """ forigi duplikatajn «citations»
   #  """
@@ -422,10 +446,6 @@ class SourceDescription(HypermediaEnabledData):
   #      cs.add(c)
   #  self.citations = cs
 
-class OnlineAccount(ExtensibleData):
-  serviceHomepage: ResourceReference
-  accountName: str
-
 class Address(ExtensibleData):
   city: str
   country: str
@@ -438,17 +458,6 @@ class Address(ExtensibleData):
   street5: str
   street6: str
   value: str
-
-class Agent(HypermediaEnabledData):
-  identifiers: dict[str,set]
-  names: set[TextValue]
-  homepage: ResourceReference
-  openid: ResourceReference
-  accounts: set[OnlineAccount]
-  emails: set[ResourceReference]
-  phones: set[ResourceReference]
-  addresses: set[Address]
-  person: ResourceReference
 
 class EventRole(Conclusion):
   person: str
