@@ -29,6 +29,12 @@ from ._utila import all_annotations, klaso_ini
 
 # gedcomx klasoj
 class ExtensibleData:
+  # bizare, «id» ne estas unika por ĉiuj klasoj.
+  # Do ni ne povas indeksi ilin ĉiujn.
+  # kelkaj klasoj kun unikaj «id» :
+  #          Person, PlaceDescription, Relationship, SourceDescription, ChildAndParentsRelationship
+  # kelkaj klasoj kun duplikataj «id» :
+  #          Fact, Name
   _indekso = None
   id: str
   def __init__(self,id=None,tree=None):
@@ -85,6 +91,8 @@ class Attribution(ExtensibleData):
 
 class Tag:
   resource: str
+  def __init__(self):
+    klaso_ini(self)
 
 class OnlineAccount(ExtensibleData):
   serviceHomepage: ResourceReference
@@ -113,7 +121,6 @@ class Agent(HypermediaEnabledData):
   person: ResourceReference
 
 class SourceReference(HypermediaEnabledData):
-  _indekso: dict = dict()
   description: str
   descriptionId: str
   attribution: Attribution
@@ -152,8 +159,6 @@ class FamilyView(HypermediaEnabledData):
   parent1: ResourceReference
   parent2: ResourceReference
   children: set[ResourceReference]
-  def __init__(self):
-    klaso_ini(self)
 
 class Date(ExtensibleData):
   """
@@ -234,7 +239,6 @@ class HasDateAndPlace:
     klaso_ini(self)
 
 class Fact(Conclusion):
-  _indekso: dict = dict()
   date: Date
   place: PlaceReference
   value: str
@@ -304,7 +308,6 @@ class Name(Conclusion):
     return ''
 
 class EvidenceReference(HypermediaEnabledData):
-  _indekso: dict = dict()
   resource: str
   resourceId: str
   attribution: Attribution
@@ -506,7 +509,6 @@ class PlaceDescription(Subject):
   type: str
 
 class Gender(Conclusion):
-  _indekso: dict = dict()
   type: str
 
 class Gedcomx(HypermediaEnabledData):
