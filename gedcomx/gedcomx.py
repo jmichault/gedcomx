@@ -39,7 +39,7 @@ class ExtensibleData:
   id: str
   def __init__(self,id=None,tree=None):
     klaso_ini(self)
-    if id and cls._indekso:
+    if id and self.__class__._indekso:
       self.__class__._indekso[id]=self
   def __new__(cls,id=None,tree=None):
     if id and cls._indekso and id in cls._indekso:
@@ -244,6 +244,7 @@ class Fact(Conclusion):
   value: str
   qualifiers: set[Qualifier]
   type: str
+  id: str
 
 class HasFacts:
   facts: set[Fact]

@@ -56,6 +56,9 @@ def _aldKlaso(kl2,x):
   if ( havasId and havasIndekso
       and x.get("id") in kl2._indekso ) :
     obj=kl2._indekso[x.get("id")]
+  elif ( havasId and havasIndekso
+      and x.get("id") ) :
+    obj = kl2(id=x.get("id"))
   else :
     obj = kl2()
   maljsonigi(obj,x)

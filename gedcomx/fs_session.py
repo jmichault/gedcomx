@@ -125,6 +125,7 @@ class FsSession:
                 continue
             self.write_log("Status code: %s" % r.status_code)
             if r.status_code == 204:
+                self.write_log("headers="+str(r.headers))
                 return r
             if r.status_code == 401:
                 self.login()
@@ -161,8 +162,35 @@ class FsSession:
                 self.write_log("WARNING: corrupted file from %s, error: %s" % (url, e))
                 return None
 
+    def head_url(self, url, headers=None):
+        self.counter += 1
+        if headers is None:
+            headers = {"Accept": "application/x-gedcomx-v1+json", "Accept-Language": "fr"}
+        if "Accept-Language" not in headers :
+            headers ["Accept-Language"] ="fr"
+        headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
+        while True:
+            try:
+                self.write_log("Downloading :" + url)
+                r = requests.head(
+                    "https://www.familysearch.org" + url,
+                    cookies={"fssessionid": self.fssessionid},
+                    timeout=self.timeout,
+                    headers=headers,
+                )
+            except requests.exceptions.ReadTimeout:
+                self.write_log("Read timed out")
+                continue
+            except requests.exceptions.ConnectionError:
+                self.write_log("Connection aborted")
+                time.sleep(self.timeout)
+                continue
+            if r.status_code == 401:
+                self.login()
+                continue
+            return r
+
     def get_url(self, url, headers=None):
-        """retrieve JSON structure from a FamilySearch URL"""
         self.counter += 1
         if headers is None:
             headers = {"Accept": "application/x-gedcomx-v1+json", "Accept-Language": "fr"}
@@ -177,6 +205,7 @@ class FsSession:
                     cookies={"fssessionid": self.fssessionid},
                     timeout=self.timeout,
                     headers=headers,
+                    allow_redirects=False
                 )
             except requests.exceptions.ReadTimeout:
                 self.write_log("Read timed out")
@@ -187,6 +216,7 @@ class FsSession:
                 continue
             self.write_log("Status code: %s" % r.status_code)
             if r.status_code == 204 or r.status_code == 301:
+                print("headers="+str(r.headers))
                 return r
             if r.status_code == 401:
                 self.login()
@@ -222,16 +252,9 @@ class FsSession:
                 time.sleep(self.timeout)
                 continue
             return r
-            #if headers["Accept"][0:5] == "image":
-            #  return r
-            #try:
-            #    return r.json()
-            #except Exception as e:
-            #    self.write_log("WARNING: corrupted file from %s, error: %s" % (url, e))
-            #    print(r.content)
-            #    return None
     def get_jsonurl(self, url, headers=None):
-        r = self.get_url(url)
+        """retrieve JSON structure from a FamilySearch URL"""
+        r = self.get_url(url,headers)
         if r:
           try:
             return r.json()
