@@ -35,6 +35,7 @@ class ExtensibleData:
   #          Person, PlaceDescription, Relationship, SourceDescription, ChildAndParentsRelationship
   # kelkaj klasoj kun duplikataj «id» :
   #          Fact, Name
+  #    ekzemplo : KJC1-LMJ kaj KJZM-ZWN : la naskiĝoj havas la saman «id»
   _indekso = None
   id: str
   def __init__(self,id=None,tree=None):
