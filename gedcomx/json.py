@@ -44,7 +44,8 @@ def jsonigi(obj):
   for a in dir(obj):
     if not a.startswith('_') and not callable(getattr(obj, a)) :
       attr = getattr(obj,a)
-      ka = attr.__class__.__name__.replace('_','-')
+      a = a.replace('_','-')
+      ka = attr.__class__.__name__
       if ka == 'NoneType' : continue
       if (ka == 'set' or ka == 'list' or ka == 'str' or ka == 'dict') and len(attr)==0 : continue
       ser[a] = jsonigi(attr)
@@ -53,7 +54,9 @@ def jsonigi(obj):
 def _aldKlaso(kl2,x,parent):
   havasId = all_annotations(kl2).get("id")
   havasIndekso = all_annotations(kl2).get("_indekso")
-  if kl2.__name__ == 'Fact' :
+  if kl2.__name__ == "str":
+    return str(x)
+  elif kl2.__name__ == 'Fact' :
     obj = None
     if (hasattr(parent, 'facts') and x.get("id")) :
       id = x.get("id")
@@ -143,7 +146,7 @@ def maljsonigi(obj,d, nepre=False):
             if not trov:
               attr.add(nova)
           else:
-            print("maljsonigi:eraro : k="+k+"; x="+str(x))
+            print("maljsonigi:eraro :  k="+k+"; x="+str(x))
         attr = attr.union()
         setattr(obj,attrnomo, attr)
     elif kn[:9] == 'dict[str,' : # speciala kazo : dict[str,Link]
@@ -153,7 +156,7 @@ def maljsonigi(obj,d, nepre=False):
         nova = _aldKlaso(kl2,v, obj)
         if nova : attr[k2] =nova
         else:
-            print("maljsonigi:eraro : k="+k+";k2="+str(k2)+"; v="+str(v)+"; kl2="+str(kl2))
+          print("maljsonigi:eraro :   k="+k+";k2="+str(k2)+"; v="+str(v)+"; kl2="+str(kl2))
       setattr(obj,attrnomo, attr)
     else:
       print("maljsonigi:nekonata ero: "+obj.__class__.__name__+":"+k)

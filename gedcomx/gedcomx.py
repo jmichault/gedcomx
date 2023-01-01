@@ -339,6 +339,7 @@ class PersonInfo:
 
 class Relationship(Subject):
   _indekso: dict = dict()
+  identifiers: dict[str,str]
   person1: ResourceReference
   person2: ResourceReference
   facts: set[Fact]

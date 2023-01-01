@@ -20,7 +20,7 @@ else :
 fs_sesio = None
 
 # krei genealogian arbon
-arbo=gedcomx.Gedcomx()
+arbo=gedcomx.xmlGedcomx()
 
 def akiri_url_aux_dos(url,dosiero):
   global arbo
@@ -33,10 +33,9 @@ def akiri_url_aux_dos(url,dosiero):
       print("ne datumojn.")
       return
     try:
-      jsonDat = json.loads(datumoj)
-      gedcomx.maljsonigi(arbo, jsonDat)
+      gedcomx.malxmligi(arbo, datumoj)
     except:
-      print("ne validan json-datumojn.")
+      print("ne validan xml-datumojn.")
     return
   print("legas url "+url+".")
   global fs_sesio
@@ -48,17 +47,17 @@ def akiri_url_aux_dos(url,dosiero):
     if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
     fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
   r = fs_sesio.get_url(url
-            ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "fr"} )
+            ,{"Accept": "application/x-fs-v1+xml", "Accept-Language": "fr,en"} )
   f = open(dosiero,'wb')
   f.write(r.content)
   f.close()
   if r and r.status_code == 200:
-    gedcomx.maljsonigi(arbo,r.json())
+    gedcomx.malxmligi(arbo,r.text)
   else:
     print("url "+url+" ne trovita.")
 
 def akiri_personon(fsid):
-    akiri_url_aux_dos("/platform/tree/persons/"+fsid,'rezultoj/person.'+fsid+'.fs.json')
+    akiri_url_aux_dos("/platform/tree/persons/"+fsid,'rezultoj/person.'+fsid+'.fs.xml')
 
 akiri_personon(fsid)
 

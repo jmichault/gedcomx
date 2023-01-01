@@ -28,7 +28,7 @@ import gedcomx.gedcomx
 from gedcomx.gedcomx import Gedcomx
 from gedcomx.json import maljsonigi, all_annotations, _aldKlaso
 
-verb=True
+verb=False
 
 class xmlero:
   def __init__(self):
@@ -44,10 +44,13 @@ class xmlero:
     if self._depth == 1:
       maljsonigi(self,attrib)
       return
-    if tag[:24] != '{http://gedcomx.org/v1/}':
+    if tag[:24] == '{http://gedcomx.org/v1/}':
+      kn=tag[24:]
+    elif tag[:29] == '{http://familysearch.org/v1/}':
+      kn=tag[29:]
+    else :
       print("AVERTO: ne konata tag: "+tag)
       return
-    kn=tag[24:]
     if verb: print("  start:"+str(kn)+" ; "+str(attrib))
     ann = all_annotations(patro.__class__).get(kn)
     if ann:
@@ -75,14 +78,14 @@ class xmlero:
     if sann[:4] == 'set[':
       self._isset[self._depth]=True
       kl2 = ann.__args__[0]
-      print("   set[: "+sann+" ; attrib="+str(attrib))
+      if verb: print("   set[: "+sann+" ; attrib="+str(attrib))
       attr = getattr(patro,kn, None) or set()
       setattr(patro,kn, attr)
       #from objbrowser import browse ;browse(locals())
     elif sann[:9] == 'dict[str,' : # speciala kazo : dict[str,Link]
       self._isdict[self._depth]=True
       kl2 = ann.__args__[1]
-      print("   dict[: "+sann+" ; attrib="+str(attrib))
+      if verb: print("   dict[: "+sann+" ; attrib="+str(attrib))
       attr = getattr(patro,kn, None) or dict()
       setattr(patro,kn, attr)
     else:

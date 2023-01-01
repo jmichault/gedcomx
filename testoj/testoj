@@ -1,0 +1,35 @@
+
+if [ $# -lt 2 ] ; then
+  echo "uzo : "$0" uzanto pasvorto"
+  exit
+fi
+
+fs_uzanto="$1"
+fs_pasvorto="$2"
+
+jb()
+{
+jq  'def walk(f):
+  . as $in
+  | if type == "object" then
+      reduce keys[] as $key
+        ( {}; . + { ($key):  ($in[$key] | walk(f)) } ) | f
+  elif type == "array" then map( walk(f) ) | f
+  else f
+  end;walk(if type == "array" then sort else . end)' "$1"
+}
+
+
+for fsid in 2HMS-88F KNDX-MKG KNDX-MFX KNW5-2D1 MQ4Y-HM7
+#for fsid in 2HMS-88F
+do
+ rm rezultoj/arbo.out.json
+ python3 ./test_fsid.py $fs_uzanto $fs_pasvorto $fsid
+ jb rezultoj/person.$fsid.fs.json >/tmp/jq.out1
+ jb rezultoj/arbo.out.json >/tmp/jq.out2
+ if diff /tmp/jq.out1 /tmp/jq.out2 >/dev/null 2>&1; then
+   echo "sukcesa testo por $fsid"
+ else
+   echo "malsukcesa testo por $fsid"
+ fi
+done

@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 testoj/rezultoj/*
+testoj/gedcomx
