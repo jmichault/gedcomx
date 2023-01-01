@@ -37,7 +37,7 @@ class SimplaDato:
     self.zono='Z'
     if not datumoj:
       return
-    if len(datumoj) <5:
+    if len(datumoj) <2:
       print("nekorekta formala dato: "+datumoj)
       return
     posZ = datumoj.find('Z')
@@ -46,7 +46,7 @@ class SimplaDato:
       self.zono='Z'
     splitT = datumoj.split('T')
     dato=splitT[0]
-    if len(dato) <5:
+    if len(dato) <2:
       print("nekorekta formala dato: "+datumoj)
       return
     self.jaro=int(dato[:5])

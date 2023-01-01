@@ -223,7 +223,7 @@ class FsSession:
                 continue
             if r.status_code in {400, 404, 405, 406, 410, 500}:
                 self.write_log("WARNING: " + url)
-                self.write_log(r.json())
+                self.write_log(r.text)
                 return None
             #else:
             #    self.write_log("WARNING: " + url)

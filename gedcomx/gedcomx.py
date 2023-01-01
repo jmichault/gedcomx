@@ -340,6 +340,17 @@ class Relationship(Subject):
   def postmaljsonigi(self,d):
   #  """ 
   #  """
+    factsKunId = False
+    factsSenId = False
+    for f in self.facts :
+      if f.id : factsKunId = True
+      else : factsSenId = True
+    if factsKunId and factsSenId :
+      facts2=self.facts.copy()
+      for f in self.facts :
+        if not f.id : facts2.remove(f)
+      self.facts=facts2
+      
     if self.type == 'http://gedcomx.org/ParentChild' :
       if self.person2 and self.person2.resourceId in Person._indekso :
         child = Person._indekso[self.person2.resourceId]

@@ -50,10 +50,20 @@ def jsonigi(obj):
       ser[a] = jsonigi(attr)
   return ser
 
-def _aldKlaso(kl2,x):
+def _aldKlaso(kl2,x,parent):
   havasId = all_annotations(kl2).get("id")
   havasIndekso = all_annotations(kl2).get("_indekso")
-  if ( havasId and havasIndekso
+  if kl2.__name__ == 'Fact' :
+    obj = None
+    if (hasattr(parent, 'facts') and x.get("id")) :
+      id = x.get("id")
+      for f in parent.facts :
+        if f.id == id :
+          obj = f
+          break
+    if not obj :
+      obj = kl2()
+  elif ( havasId and havasIndekso
       and x.get("id") in kl2._indekso ) :
     obj=kl2._indekso[x.get("id")]
   elif ( havasId and havasIndekso
@@ -107,7 +117,7 @@ def maljsonigi(obj,d, nepre=False):
       setattr(obj,attrnomo, attr)
     elif kn[:8] == "<class '" :
       kl2 = ann
-      nova = _aldKlaso(kl2,d[k])
+      nova = _aldKlaso(kl2,d[k],obj)
       if nova: 
         setattr(obj,attrnomo, nova)
       else:
@@ -123,7 +133,7 @@ def maljsonigi(obj,d, nepre=False):
         attr = getattr(obj,attrnomo, None) or set()
         kl2 = ann.__args__[0]
         for x in d[k] :
-          nova = _aldKlaso(kl2,x)
+          nova = _aldKlaso(kl2,x, obj)
           if nova :
             trov = False
             if hasattr(kl2,"iseq"):
@@ -141,7 +151,7 @@ def maljsonigi(obj,d, nepre=False):
       kl2 = ann.__args__[1]
       attr = getattr(obj,attrnomo, None) or dict()
       for k2,v in d[k].items() :
-        nova = _aldKlaso(kl2,v)
+        nova = _aldKlaso(kl2,v, obj)
         if nova : attr[k2] =nova
         else:
             print("maljsonigi:eraro : k="+k+";k2="+str(k2)+"; v="+str(v)+"; kl2="+str(kl2))
