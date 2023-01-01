@@ -49,10 +49,12 @@ class SimplaDato:
     if len(dato) <2:
       print("nekorekta formala dato: "+datumoj)
       return
-    self.jaro=int(dato[:5])
-    x = dato[6:].split('-')
-    if len(x)>0 and x[0] != '' : self.monato=int(x[0])
-    if len(x)>1 : self.tago=int(x[1])
+    x = dato[1:].split('-')
+    if len(x)>0 and x[0] != '' : self.jaro=int(x[0])
+    if dato[:1] == '-' :
+      self.jaro = -self.jaro
+    if len(x)>1 and x[1] != '' : self.monato=int(x[1])
+    if len(x)>2 : self.tago=int(x[2])
     if len(splitT)>1:
       pHoro=splitT[1] # hora parto : hh:[mm[:ss]]
       posSigno = pHoro.find('+')

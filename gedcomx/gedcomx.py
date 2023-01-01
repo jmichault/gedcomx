@@ -121,6 +121,12 @@ class Agent(HypermediaEnabledData):
   addresses: set [ResourceReference]
   person: ResourceReference
 
+# https://www.familysearch.org/developers/docs/api/types/json_DiscussionReference
+class DiscussionReference(HypermediaEnabledData):
+  resourceId: str
+  resource: str
+  attribution: Attribution
+
 class SourceReference(HypermediaEnabledData):
   description: str
   descriptionId: str
@@ -394,6 +400,7 @@ class Person(Subject):
   facts: set[Fact]
   display: DisplayProperties
   personInfo: set[PersonInfo]  # family search !
+  discussion_references: set[DiscussionReference]  # family search !
   _gepatroj: set[Relationship]
   _infanoj: set[Relationship]
   _paroj: set[Relationship]

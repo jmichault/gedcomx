@@ -44,7 +44,7 @@ def jsonigi(obj):
   for a in dir(obj):
     if not a.startswith('_') and not callable(getattr(obj, a)) :
       attr = getattr(obj,a)
-      ka = attr.__class__.__name__
+      ka = attr.__class__.__name__.replace('_','-')
       if ka == 'NoneType' : continue
       if (ka == 'set' or ka == 'list' or ka == 'str' or ka == 'dict') and len(attr)==0 : continue
       ser[a] = jsonigi(attr)
@@ -94,11 +94,10 @@ def maljsonigi(obj,d, nepre=False):
     # serĉi ĉiu ero en la komentarioj de «obj»
     if ( k[:38] == '{http://www.w3.org/XML/1998/namespace}'):
       print("K="+k)
-      ann = all_annotations(obj.__class__).get(k[38:])
-      attrnomo = k[38:]
+      attrnomo = k[38:].replace('-','_')
     else:
-      attrnomo = k
-      ann = all_annotations(obj.__class__).get(k)
+      attrnomo = k.replace('-','_')
+    ann = all_annotations(obj.__class__).get(attrnomo)
     kn = str(ann)
     if (  kn == "<class 'bool'>" or kn == "<class 'str'>" or kn == "<class 'int'>" or kn == "<class 'float'>" or kn == "<class 'None'>") :
       setattr(obj,attrnomo, d[k])
