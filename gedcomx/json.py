@@ -96,13 +96,16 @@ def maljsonigi(obj,d, nepre=False):
   for k in d :
     # serĉi ĉiu ero en la komentarioj de «obj»
     if ( k[:38] == '{http://www.w3.org/XML/1998/namespace}'):
-      print("K="+k)
       attrnomo = k[38:].replace('-','_')
     else:
       attrnomo = k.replace('-','_')
     ann = all_annotations(obj.__class__).get(attrnomo)
     kn = str(ann)
-    if (  kn == "<class 'bool'>" or kn == "<class 'str'>" or kn == "<class 'int'>" or kn == "<class 'float'>" or kn == "<class 'None'>") :
+    if (  kn == "<class 'bool'>" ) :
+      if d[k]=='true' : setattr(obj,attrnomo, True)
+      elif d[k]=='false' : setattr(obj,attrnomo, False)
+      else : setattr(obj,attrnomo, d[k])
+    elif (  kn == "<class 'bool'>" or kn == "<class 'str'>" or kn == "<class 'int'>" or kn == "<class 'float'>" or kn == "<class 'None'>") :
       setattr(obj,attrnomo, d[k])
     elif kn == "<class 'set'>":
       attr = getattr(obj,attrnomo, None) or set()

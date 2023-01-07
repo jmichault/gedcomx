@@ -19,17 +19,32 @@ jq  'def walk(f):
   end;walk(if type == "array" then sort else . end)' "$1"
 }
 
+sukcesoj=0
+malsukcesoj=0
 
 for fsid in 2HMS-88F KNDX-MKG KNDX-MFX KNW5-2D1 MQ4Y-HM7
-#for fsid in 2HMS-88F
+#for fsid in MQ4Y-HM7
 do
  rm rezultoj/arbo.out.json
  python3 ./test_fsid.py $fs_uzanto $fs_pasvorto $fsid
  jb rezultoj/person.$fsid.fs.json >/tmp/jq.out1
  jb rezultoj/arbo.out.json >/tmp/jq.out2
  if diff /tmp/jq.out1 /tmp/jq.out2 >/dev/null 2>&1; then
-   echo "sukcesa testo por $fsid"
+   echo "json-json : sukcesa testo por $fsid"
+   sukcesoj=$(($sukcesoj+1))
  else
-   echo "malsukcesa testo por $fsid"
+   echo "json-json : malsukcesa testo por $fsid"
+   malsukcesoj=$(($malsukcesoj+1))
+ fi
+ python3 ./test_fsid_xml.py $fs_uzanto $fs_pasvorto $fsid
+ jb rezultoj/arboxml.out.json >/tmp/jq.out3
+ if diff /tmp/jq.out1 /tmp/jq.out3 >/dev/null 2>&1; then
+   echo "xml-json : sukcesa testo por $fsid"
+   sukcesoj=$(($sukcesoj+1))
+ else
+   echo "xml-json : malsukcesa testo por $fsid"
+   malsukcesoj=$(($malsukcesoj+1))
  fi
 done
+
+echo "sukcesaj testoj : $sukcesoj/"$(($sukcesoj+$malsukcesoj))

@@ -62,7 +62,7 @@ def akiri_personon(fsid):
 akiri_personon(fsid)
 
 rezulto = gedcomx.jsonigi(arbo)
-f = open('rezultoj/arbo.out.json','w')
+f = open('rezultoj/arboxml.out.json','w')
 json.dump(rezulto,f,indent=2)
 f.close()
 

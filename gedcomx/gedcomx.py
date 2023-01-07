@@ -21,6 +21,7 @@
 # https://github.com/FamilySearch/gedcomx/blob/master/specifications/conceptual-model-specification.md
 # https://www.familysearch.org/developers/docs/api/gx_json
 # https://www.familysearch.org/developers/docs/api/fs_json
+# https://github.com/FamilySearch/gedcomx-record/blob/master/specifications/record-specification.md
  
 from collections import ChainMap
 
@@ -269,11 +270,15 @@ class NamePart(ExtensibleData):
   value: str
   qualifiers: set[Qualifier]
 
+# family search : https://www.familysearch.org/developers/docs/api/types/json_NameFormInfo
+class NameFormInfo:
+  order: str
+
 class NameForm(ExtensibleData):
   lang: str
   parts: set[NamePart]
   fullText: str
-  nameFormInfo: str  # family search !
+  nameFormInfo: set[NameFormInfo]  # family search !
   def iseq(self,other):
     if isinstance(other,NameForm):
       return (self.lang == other.lang and self.fullText == other.fullText)

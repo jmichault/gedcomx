@@ -18,6 +18,7 @@
 #
 
 import sys
+from datetime import datetime, time
 
 
 # datetime ne akceptas negativajn valuojn, do ni devas krei nian propran klason
@@ -28,7 +29,7 @@ class SimplaDato:
   " tago: int
   " horo: int
   " minuto: int
-  " sekundo: int
+  " sekundo: float
   " zono: str
   """
   def __init__(self,datumoj: str=None):
@@ -49,7 +50,10 @@ class SimplaDato:
     if len(dato) <2:
       print("nekorekta formala dato: "+datumoj)
       return
-    x = dato[1:].split('-')
+    if dato[0] == '-' :
+      x = dato[1:].split('-')
+    else :
+      x = dato.split('-')
     if len(x)>0 and x[0] != '' : self.jaro=int(x[0])
     if dato[:1] == '-' :
       self.jaro = -self.jaro
@@ -65,11 +69,12 @@ class SimplaDato:
       x = pHoro.split(':')
       self.horo=int(x[0])
       if len(x)>1 : self.minuto=int(x[1])
-      if len(x)>2 : self.sekundo=int(x[2])
+      if len(x)>2 : self.sekundo=float(x[2])
   def __str__(self):
     #±YYYY[-MM[-DD[Thh:[mm[:ss]][±hh[:mm]|Z]]]]
     if self.jaro ==0 : return ''
     if self.jaro >= 0 : res='+'
+    else: res =''
     res += "%04d" %(self.jaro)
     if self.monato:
       res += "-%02d" %(self.monato)
@@ -83,6 +88,12 @@ class SimplaDato:
           res += ":%02d" %(self.sekundo)
       res += self.zono
     return res
+  def datetime(self):
+    return datetime(self.jaro,self.monato,self.tago,self.horo,self.minuto,int(self.sekundo),round((self.sekundo%1)*1000000)
+            ,tzinfo=datetime.strptime(self.zono,'%z').tzinfo)
+  def int(self):
+    return round(self.datetime().timestamp()*1000)
+      
 
 
 
