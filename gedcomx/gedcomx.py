@@ -259,12 +259,6 @@ class HasFacts:
   def __init__(self):
     klaso_ini(self)
 
-class Qualifier:
-  name: str
-  value: str
-  def __init__(self):
-    klaso_ini(self)
-
 class NamePart(ExtensibleData):
   type: str
   value: str

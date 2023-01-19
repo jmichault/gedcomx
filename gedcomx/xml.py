@@ -55,7 +55,14 @@ class xmlero:
     else :
       print("AVERTO: ne konata tag: "+tag)
       return
+    attrnomo = attrnomo.replace('-','_')
     if verb: print("  start:"+str(attrnomo)+" ; "+str(attrib))
+    if attrnomo == 'br' :
+      self._obj[self._depth-1] += "\n"
+      return
+    if attrnomo == 'space' :
+      self._obj[self._depth-1] += " "
+      return
     ann = all_annotations(patro.__class__).get(attrnomo)
     kn = str(ann)
     if ann:
@@ -117,6 +124,7 @@ class xmlero:
       obj = _aldKlaso(kl2,attrib,patro)
       attr.add(obj)
       setattr(patro,attrnomo, attr)
+      self._attr[self._depth]=attr
       #from objbrowser import browse ;browse(locals())
     elif sann == 'dict[str, gedcomx.gedcomx.Link]' : # speciala kazo : dict[str, Link]
       self._isdict[self._depth]=True
@@ -197,7 +205,8 @@ class xmlero:
         attr = self._attr.get(self._depth)
         rel = self._rel.get(self._depth)
         attr[rel] = data
-        pass
+      elif obj != None and klaso and klaso.__name__ == 'set':
+        obj.value = data
       elif obj != None and klaso and klaso.__name__ == 'TextValue':
         obj.value = data
       else:
@@ -217,6 +226,8 @@ def malxmligi(obj,d, nepre=False):
 def xmligi(obj):
   r = ET.Element(obj.__class__.__name__.lower())
   r.attrib['xmlns']='http://gedcomx.org/v1/'
+  r.attrib['xmlns:fs']='http://familysearch.org/v1/'
+  r.attrib['xmlns:atom']='http://www.w3.org/2005/Atom'
   farixml(r,obj)
   return ET.ElementTree(r)
 
@@ -224,10 +235,20 @@ def farixml(r,obj):
   for a in dir(obj):
     if not a.startswith('_') and not callable(getattr(obj, a)) :
       attr = getattr(obj,a)
+      if a == 'childAndParentsRelationships' :
+        a='fs:childAndParentsRelationships'
+      if a == 'child' :
+        a='fs:child'
+      if a == 'parent1' :
+        a='fs:parent1'
+      if a == 'parent2' :
+        a='fs:parent2'
       ka = attr.__class__.__name__
       if ka == 'NoneType' : continue
       if (ka == 'set' or ka == 'list' or ka == 'str' or ka == 'dict') and len(attr)==0 : continue
       kn = str(ka)
+      #if a == 'identifiers' :
+      #  print(" kn="+kn)
       if (kn == 'str') or (kn == 'int') or (kn == 'bool') or (kn == 'float') :
         r.attrib[a]=str(attr)
       elif (kn == 'set'):
@@ -244,6 +265,8 @@ def farixml(r,obj):
          if a == 'link':
            sub.attrib['rel']=k
          elif a =='identifier' :
+           #print("  k="+k)
+           #print("  v="+str(v))
            sub.attrib['type']=k
          else:
            sub.attrib['type']=k

@@ -22,6 +22,8 @@ fs_sesio = None
 # krei genealogian arbon
 arbo=gedcomx.xmlGedcomx()
 
+import re
+
 def akiri_url_aux_dos(url,dosiero):
   global arbo
   if exists(dosiero):
@@ -29,13 +31,17 @@ def akiri_url_aux_dos(url,dosiero):
     f = open(dosiero,'rb')
     datumoj = f.read()
     f.close()
+    # !!! FamilySearch ne respektas xml-specifojn, kaj enmetas novliniojn kaj pluraj malplenaj en valorojn.
+    # Do ni anstataŭigas la linirompojn por ke la analizilo rekonu ilin.
+    # Ĉi tio ne solvas la problemon, ke pluraj malplenaj estas anstataŭigitaj per unu !
+    datumoj = re.sub(rb'([^>])\n',rb'\1<br/>',datumoj)
+    f = open('xmlre.xml','wb')
+    f.write(datumoj)
+    f.close()
     if not datumoj or datumoj == "":
       print("ne datumojn.")
       return
-    try:
-      gedcomx.malxmligi(arbo, datumoj)
-    except:
-      print("ne validan xml-datumojn.")
+    gedcomx.malxmligi(arbo, datumoj)
     return
   print("legas url "+url+".")
   global fs_sesio
