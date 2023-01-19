@@ -27,9 +27,9 @@ sukcesoj=0
 malsukcesoj=0
 
 for fsid in 2HMS-88F KNDX-MKG KNDX-MFX KNW5-2D1 MQ4Y-HM7
-#for fsid in KNDX-MKG
+#for fsid in 2HMS-88F
 do
- rm rezultoj/arbo.out.json
+ rm rezultoj/arbo.out.json 2>/dev/null
  python3 ./test_fsid.py $fs_uzanto $fs_pasvorto $fsid >/dev/null
  jb rezultoj/person.$fsid.fs.json >/tmp/jq.out1
  jb rezultoj/arbo.out.json >/tmp/jq.out2
@@ -38,17 +38,37 @@ do
    echo "json-json : sukcesa testo por $fsid"
    sukcesoj=$(($sukcesoj+1))
  else
-   echo "json-json : malsukcesa testo por $fsid"
+   echo "! json-json : malsukcesa testo por $fsid"
    malsukcesoj=$(($malsukcesoj+1))
  fi
  python3 ./test_fsid_xml.py $fs_uzanto $fs_pasvorto $fsid >/dev/null
+ python3 ./test_xml.py >/dev/null
  jb rezultoj/arboxml.out.json >/tmp/jq.out3
  mv rezultoj/arbo.out.xml rezultoj/person.$fsid.fs.out.xml
  if diff /tmp/jq.out1 /tmp/jq.out3 >/dev/null 2>&1; then
    echo "xml-json : sukcesa testo por $fsid"
    sukcesoj=$(($sukcesoj+1))
  else
-   echo "xml-json : malsukcesa testo por $fsid"
+   echo "! xml-json : malsukcesa testo por $fsid"
+   malsukcesoj=$(($malsukcesoj+1))
+ fi
+ xmllint --format rezultoj/person.$fsid.fs.xml >/tmp/x1
+ gawk -f sortxml.awk /tmp/x1 >/tmp/x1.sorta
+ xmllint --format rezultoj/person.$fsid.fs.out.xml >/tmp/x2
+ gawk -f sortxml.awk /tmp/x2 >/tmp/x2.sorta
+ if diff /tmp/x1.sorta /tmp/x2.sorta >/dev/null 2>&1; then
+   echo "xml-xml : sukcesa testo por $fsid"
+   sukcesoj=$(($sukcesoj+1))
+ else
+   echo "! xml-xml : malsukcesa testo por $fsid"
+   malsukcesoj=$(($malsukcesoj+1))
+ fi
+ jb rezultoj/arboxml.out2.json >/tmp/jq.out4
+ if diff /tmp/jq.out1 /tmp/jq.out4 >/dev/null 2>&1; then
+   echo "xml-xml-json : sukcesa testo por $fsid"
+   sukcesoj=$(($sukcesoj+1))
+ else
+   echo "! xml-xml-json : malsukcesa testo por $fsid"
    malsukcesoj=$(($malsukcesoj+1))
  fi
 done

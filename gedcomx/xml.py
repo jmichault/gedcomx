@@ -243,6 +243,10 @@ def farixml(r,obj):
         a='fs:parent1'
       if a == 'parent2' :
         a='fs:parent2'
+      if a == 'parent1Facts' :
+        a='fs:parent1Facts'
+      if a == 'parent2Facts' :
+        a='fs:parent2Facts'
       ka = attr.__class__.__name__
       if ka == 'NoneType' : continue
       if (ka == 'set' or ka == 'list' or ka == 'str' or ka == 'dict') and len(attr)==0 : continue
@@ -268,6 +272,16 @@ def farixml(r,obj):
            #print("  k="+k)
            #print("  v="+str(v))
            sub.attrib['type']=k
+           if v.__class__.__name__ == 'set' :
+             unua=True
+             sub.text = ''
+             for x in v :
+               if unua : unua=False
+               else : sub.text += ','
+               sub.text += x
+           else :
+             sub.text = v
+           #from objbrowser import browse ;browse(locals())
          else:
            sub.attrib['type']=k
            print('nekonata dict: '+a)

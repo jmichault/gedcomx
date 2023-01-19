@@ -77,4 +77,3 @@ ET.indent(xml)
 xml.write('rezultoj/arbo.out.xml',encoding='UTF-8'
     ,xml_declaration='version="1.0" standalone="yes"'
     )
-

@@ -3,13 +3,17 @@ BEGIN{ niveau=1; niveaux[1][1]=""; indents[1]=0; nblignes[1]=0;}
  indent=0;
  while (substr($0,indent,1) == " ") {indent++;}
  if (niveau == 1 && nblignes[1]==0) indents[1]=indent;
- if (indent > indents[niveau]) 
+ if (substr($0,indent,1) != "<")
+ {
+   niveaux[niveau][nblignes[niveau]]= niveaux[niveau][nblignes[niveau]] "\n" $0;
+ }
+ else if (indent > indents[niveau]) 
  {
     niveau++;
     indents[niveau] = indent;
     nblignes[niveau]=0;
     nblignes[niveau]++;
-    niveaux[niveau][1];
+#    niveaux[niveau][1];
     niveaux[niveau][nblignes[niveau]]=$0;
 #    print "niveau ++ " niveau niveaux[niveau][nblignes[niveau]]
  }
@@ -30,7 +34,6 @@ BEGIN{ niveau=1; niveaux[1][1]=""; indents[1]=0; nblignes[1]=0;}
    niveaux[niveau][nblignes[niveau]]= niveaux[niveau][nblignes[niveau]] "\n" $0;
 #   print "niveau -- " niveau niveaux[niveau][nblignes[niveau]]
    while (indents[niveau]>indent) niveau --;
-   nblignes[niveau]++;
  }
  else
  {
