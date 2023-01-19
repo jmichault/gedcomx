@@ -7,6 +7,10 @@ fi
 fs_uzanto="$1"
 fs_pasvorto="$2"
 
+if [ ! -d rezultoj ] ; then
+  mkdir rezultoj
+fi
+
 jb()
 {
 jq  'def walk(f):
@@ -29,6 +33,7 @@ do
  python3 ./test_fsid.py $fs_uzanto $fs_pasvorto $fsid >/dev/null
  jb rezultoj/person.$fsid.fs.json >/tmp/jq.out1
  jb rezultoj/arbo.out.json >/tmp/jq.out2
+ mv rezultoj/arbo.out.json rezultoj/person.$fsid.fs.out.json
  if diff /tmp/jq.out1 /tmp/jq.out2 >/dev/null 2>&1; then
    echo "json-json : sukcesa testo por $fsid"
    sukcesoj=$(($sukcesoj+1))
@@ -38,6 +43,7 @@ do
  fi
  python3 ./test_fsid_xml.py $fs_uzanto $fs_pasvorto $fsid >/dev/null
  jb rezultoj/arboxml.out.json >/tmp/jq.out3
+ mv rezultoj/arbo.out.xml rezultoj/person.$fsid.fs.out.xml
  if diff /tmp/jq.out1 /tmp/jq.out3 >/dev/null 2>&1; then
    echo "xml-json : sukcesa testo por $fsid"
    sukcesoj=$(($sukcesoj+1))
