@@ -66,6 +66,16 @@ def _aldKlaso(kl2,x,parent):
           break
     if not obj :
       obj = kl2()
+  elif kl2.__name__ == 'Name' :
+    obj = None
+    if (hasattr(parent, 'names') and x.get("id")) :
+      id = x.get("id")
+      for o in parent.names :
+        if o.id == id :
+          obj = o
+          break
+    if not obj :
+      obj = kl2()
   elif ( havasId and havasIndekso
       and x.get("id") in kl2._indekso ) :
     obj=kl2._indekso[x.get("id")]
