@@ -139,7 +139,7 @@ def maljsonigi(obj,d, nepre=False):
         print("maljsonigi:eraro : k="+k+"; d[k]="+str(d[k]))
     elif kn[:4] == 'set[' :
       kn2 = kn[4:len(kn)-1]
-      if (  kn2 == "bool" or kn2 == "str" or kn2 == "int" or kn2 == "float" or kn2 == "None") :
+      if (  kn2 == 'bool' or kn2 == 'str' or kn2 == 'int' or kn2 == 'float' or kn2 == 'None') :
         attr = getattr(obj,attrnomo, None) or set()
         #attr.update(d[k])
         attr = attr.union(d[k])

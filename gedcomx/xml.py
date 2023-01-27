@@ -73,7 +73,7 @@ class xmlero:
         self._isdict[self._depth]=False
         obj = getattr(patro,attrnomo, None) or kl2()
         kn2 = kn[4:len(kn)-1]
-        if (  kn2 == "bool" or kn2 == "str" or kn2 == "int" or kn2 == "float" or kn2 == "None") :
+        if (  kn2 == 'bool' or kn2 == 'str' or kn2 == 'int' or kn2 == 'float' or kn2 == 'None') :
           attr = getattr(patro,attrnomo, None) or set()
           kl2 = ann.__args__[0]
           obj2 = kl2()

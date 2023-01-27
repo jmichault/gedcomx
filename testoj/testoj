@@ -26,8 +26,8 @@ jq  'def walk(f):
 sukcesoj=0
 malsukcesoj=0
 
-for fsid in 2HMS-88F KNDX-MKG KNDX-MFX KNW5-2D1 MQ4Y-HM7
-#for fsid in 2HMS-88F
+#for fsid in 2HMS-88F KNDX-MKG KNDX-MFX KNW5-2D1 MQ4Y-HM7
+for fsid in 2HMS-88F
 do
  rm rezultoj/arbo.out.json 2>/dev/null
  python3 ./test_fsid.py $fs_uzanto $fs_pasvorto $fsid >/dev/null

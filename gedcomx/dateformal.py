@@ -54,6 +54,8 @@ class SimplaDato:
       x = dato[1:].split('-')
     else :
       x = dato.split('-')
+    if len(x)==0 or (x[0][0]!= '+' and x[0][0]!= '-' and not x[0][0].isdigit()) :
+      return
     if len(x)>0 and x[0] != '' : self.jaro=int(x[0])
     if dato[:1] == '-' :
       self.jaro = -self.jaro
