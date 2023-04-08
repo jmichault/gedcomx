@@ -13,14 +13,15 @@ class FsSession:
     :param timeout: time before retry a request
     """
 
-    def __init__(self, username, password, verbose=False, logfile=False, timeout=60):
+    def __init__(self, username, password, verbose=False, logfile=False, timeout=60, lingvo=None):
         self.username = username
         self.password = password
         self.verbose = verbose
         self.logfile = logfile
         self.timeout = timeout
-        self.fid = self.lang = self.display_name = None
+        self.fid = self.display_name = None
         self.counter = 0
+        self.lingvo = lingvo
         self.logged = self.login()
 
     def write_log(self, text):
@@ -43,6 +44,7 @@ class FsSession:
                 nbtry = nbtry + 1
                 url = "https://www.familysearch.org/auth/familysearch/login"
                 headers = {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'}
+                #headers ["Accept-Language"] = self.lingvo
                 self.write_log("Downloading : " + url)
                 r = requests.get(url, params={"ldsauth": False}, allow_redirects=False, headers=headers)
                 url = r.headers["Location"]
@@ -165,9 +167,9 @@ class FsSession:
     def head_url(self, url, headers=None):
         self.counter += 1
         if headers is None:
-            headers = {"Accept": "application/x-gedcomx-v1+json", "Accept-Language": "fr"}
-        if "Accept-Language" not in headers :
-            headers ["Accept-Language"] ="fr"
+            headers = {"Accept": "application/x-gedcomx-v1+json"}
+        if "Accept-Language" not in headers and self.lingvo :
+            headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
         while True:
             try:
@@ -193,9 +195,9 @@ class FsSession:
     def get_url(self, url, headers=None):
         self.counter += 1
         if headers is None:
-            headers = {"Accept": "application/x-gedcomx-v1+json", "Accept-Language": "fr"}
-        if "Accept-Language" not in headers :
-            headers ["Accept-Language"] ="fr"
+            headers = {"Accept": "application/x-gedcomx-v1+json"}
+        if "Accept-Language" not in headers and self.lingvo:
+            headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
         while True:
             try:
@@ -269,13 +271,14 @@ class FsSession:
         data = self.get_jsonurl(url)
         if data:
             self.fid = data["users"][0]["personId"]
-            self.lang = data["users"][0]["preferredLanguage"]
+            if not self.lingvo :
+              self.lingvo = data["users"][0]["preferredLanguage"]
             self.display_name = data["users"][0]["displayName"]
 
     def _(self, string):
         """translate a string into user's language
         TODO replace translation file for gettext format
         """
-        if string in translations and self.lang in translations[string]:
-            return translations[string][self.lang]
+        if string in translations and self.lingvo in translations[string]:
+            return translations[string][self.lingvo]
         return string
