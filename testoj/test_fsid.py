@@ -52,6 +52,7 @@ def akiri_url_aux_dos(url,dosiero):
   f = open(dosiero,'wb')
   f.write(r.content)
   f.close()
+  print(r.headers)
   if r and r.status_code == 200:
     gedcomx.maljsonigi(arbo,r.json())
   else:

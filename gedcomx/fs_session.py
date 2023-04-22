@@ -4,6 +4,11 @@ import time
 
 import requests
 
+STATO_INIT = 0
+STATO_KONEKTITA = 1
+STATO_PASVORTA_ERARO = -1
+STATO_ERARO = -2
+
 
 class FsSession:
     """Create a FamilySearch session
@@ -22,6 +27,7 @@ class FsSession:
         self.fid = self.display_name = None
         self.counter = 0
         self.lingvo = lingvo
+        self.stato = STATO_INIT
         self.logged = self.login()
 
     def write_log(self, text):
@@ -40,6 +46,7 @@ class FsSession:
         while True:
             try:
                 if nbtry > 3 :
+                  self.stato = STATO_ERARO
                   return False
                 nbtry = nbtry + 1
                 url = "https://www.familysearch.org/auth/familysearch/login"
@@ -68,6 +75,7 @@ class FsSession:
 
                 if "The username or password was incorrect" in r.text:
                     self.write_log("The username or password was incorrect")
+                    self.stato = STATO_PASVORTA_ERARO
                     return False
 
                 if "Invalid Oauth2 Request" in r.text:
@@ -101,6 +109,7 @@ class FsSession:
                 continue
             self.write_log("FamilySearch session id: " + self.fssessionid)
             self.set_current()
+            self.stato = STATO_KONEKTITA
             return True
 
     def post_url(self, url, datumoj, headers=None):
