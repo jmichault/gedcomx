@@ -116,8 +116,13 @@ class FsSession:
         if headers is None:
             headers = {"Accept": "application/x-gedcomx-v1+json","Content-Type": "application/x-gedcomx-v1+json"}
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
+        nbtry = 1
         while True:
             try:
+                if nbtry > 3 :
+                  self.stato = STATO_ERARO
+                  return None
+                nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
                 r = requests.post(
                     "https://api.familysearch.org" + url,
@@ -180,8 +185,13 @@ class FsSession:
         if "Accept-Language" not in headers and self.lingvo :
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
+        nbtry = 1
         while True:
             try:
+                if nbtry > 3 :
+                  self.stato = STATO_ERARO
+                  return None
+                nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
                 r = requests.head(
                     "https://www.familysearch.org" + url,
@@ -208,8 +218,13 @@ class FsSession:
         if "Accept-Language" not in headers and self.lingvo:
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
+        nbtry = 1
         while True:
             try:
+                if nbtry > 3 :
+                  self.stato = STATO_ERARO
+                  return None
+                nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
                 r = requests.get(
                     "https://www.familysearch.org" + url,
