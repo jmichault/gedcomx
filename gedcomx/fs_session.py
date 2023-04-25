@@ -148,6 +148,7 @@ class FsSession:
         if headers is None:
             headers = {"Accept": "application/x-gedcomx-v1+json","Content-Type": "application/x-gedcomx-v1+json"}
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
+        headers ["Authorization"] = 'Bearer '+self.access_token
         nbtry = 1
         while True:
             try:
@@ -158,7 +159,6 @@ class FsSession:
                 self.write_log("Downloading :" + url)
                 r = self.session.post(
                     "https://api.familysearch.org" + url,
-                    params={'access_token' : self.access_token},
                     timeout=self.timeout,
                     headers=headers,
                     data=datumoj,
@@ -217,9 +217,7 @@ class FsSession:
         if "Accept-Language" not in headers and self.lingvo :
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
-        req=requests.PreparedRequest()
-        params = {'access_token':self.access_token}
-        req.prepare_url("https://www.familysearch.org" + url, params)
+        headers ["Authorization"] = 'Bearer '+self.access_token
         nbtry = 1
         while True:
             try:
@@ -229,7 +227,7 @@ class FsSession:
                 nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
                 r = self.session.head(
-                    req.url,
+                    "https://www.familysearch.org" + url,
                     timeout=self.timeout,
                     headers=headers,
                 )
@@ -252,9 +250,7 @@ class FsSession:
         if "Accept-Language" not in headers and self.lingvo:
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
-        req=requests.PreparedRequest()
-        params = {'access_token':self.access_token}
-        req.prepare_url("https://www.familysearch.org" + url, params)
+        headers ["Authorization"] = 'Bearer '+self.access_token
         nbtry = 0
         while True:
             nbtry = nbtry + 1
@@ -264,7 +260,7 @@ class FsSession:
             try:
                 self.write_log("Downloading :" + url)
                 r = self.session.get(
-                    req.url,
+                    "https://www.familysearch.org" + url,
                     timeout=self.timeout,
                     headers=headers,
                     allow_redirects=False
