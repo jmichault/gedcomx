@@ -7,15 +7,18 @@ from os.path import exists
 import gedcomx
 
 
-if len(sys.argv) >=4 :
+# fs id de Ludwik Łazarz Zamenhof
+fsid='2HMS-88F'
+if len(sys.argv) >=3 :
+  fs_uzanto=sys.argv[1]
+  fs_pasvorto=sys.argv[2]
+elif len(sys.argv) >=4 :
   fs_uzanto=sys.argv[1]
   fs_pasvorto=sys.argv[2]
   fsid=sys.argv[3]
 else :
   fs_uzanto=None
   fs_pasvorto=None
-  # fs id de Ludwik Łazarz Zamenhof
-  fsid='2HMS-88F'
 
 fs_sesio = None
 
@@ -52,7 +55,7 @@ def akiri_url_aux_dos(url,dosiero):
   f = open(dosiero,'wb')
   f.write(r.content)
   f.close()
-  print(r.headers)
+  #print(r.headers)
   if r and r.status_code == 200:
     gedcomx.maljsonigi(arbo,r.json())
   else:

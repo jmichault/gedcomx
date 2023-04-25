@@ -28,6 +28,7 @@ class FsSession:
         self.counter = 0
         self.lingvo = lingvo
         self.stato = STATO_INIT
+        self.session = requests.session()
         self.logged = self.login()
 
     def write_log(self, text):
@@ -44,32 +45,36 @@ class FsSession:
         """
         nbtry = 1
         while True:
+            if nbtry > 3 :
+              self.stato = STATO_ERARO
+              print("too many errors")
+              return False
+
             try:
-                if nbtry > 3 :
-                  self.stato = STATO_ERARO
-                  return False
                 nbtry = nbtry + 1
                 url = "https://www.familysearch.org/auth/familysearch/login"
                 headers = {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'}
                 #headers ["Accept-Language"] = self.lingvo
-                self.write_log("Downloading : " + url)
-                r = requests.get(url, params={"ldsauth": False}, allow_redirects=False, headers=headers)
-                url = r.headers["Location"]
-                self.write_log("Downloading : " + url)
-                r = requests.get(url, allow_redirects=False,headers=headers)
+                r = self.session.get(url, params={"ldsauth": False}, allow_redirects=False, headers=headers)
+                import urllib
+                self.client_id = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['client_id'][0]
+                self.client_secret = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['client_secret'][0]
+                self.redirect_uri = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['redirect_uri'][0]
+                r = self.session.send(r.next)
                 idx = r.text.index('name="params" value="')
                 span = r.text[idx + 21 :].index('"')
                 params = r.text[idx + 21 : idx + 21 + span]
 
                 url = "https://ident.familysearch.org/cis-web/oauth2/v3/authorization"
-                self.write_log("Downloading : " + url)
-                r = requests.post(
+                r = self.session.post(
                     url,
                     data={
                         "params": params,
                         "userName": self.username,
                         "password": self.password,
+                        "privateComputer": False
                     },
+                    timeout=self.timeout,
                     allow_redirects=False,headers=headers,
                 )
 
@@ -83,10 +88,24 @@ class FsSession:
                     time.sleep(self.timeout)
                     continue
 
-                url = r.headers["Location"]
-                self.write_log("Downloading : " + url)
-                r = requests.get(url, allow_redirects=False,headers=headers)
-                self.fssessionid = r.cookies["fssessionid"]
+                # get the authorization code from redirect url :
+                self.code = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['code'][0]
+                self.fssessionid = r.next._cookies["familysearch-sessionid"]
+                url = 'https://ident.familysearch.org/cis-web/oauth2/v3/token'
+                r = self.session.post(
+                    url,
+                    timeout=self.timeout,
+                    headers=headers,
+                    data={
+                       "code": self.code,
+                       "client_id": self.client_id,
+                       "client_secret": self.client_secret,
+                       "redirect_uri": self.redirect_uri,
+                       "grant_type": 'authorization_code',
+                      },
+                    allow_redirects=False
+                )
+                self.access_token = r.json()['access_token']
             except requests.exceptions.ReadTimeout:
                 self.write_log("Read timed out")
                 continue
@@ -107,9 +126,22 @@ class FsSession:
                 self.write_log("ValueError")
                 time.sleep(self.timeout)
                 continue
-            self.write_log("FamilySearch session id: " + self.fssessionid)
-            self.set_current()
+
             self.stato = STATO_KONEKTITA
+            url = "/platform/users/current?access_token="+self.access_token
+            r = self.session.get(
+                    "https://www.familysearch.org" + url,
+                    timeout=self.timeout,
+                    headers=headers,
+                    allow_redirects=False
+                )
+            if r:
+              data=r.json()
+              if data:
+                self.fid = data["users"][0]["personId"]
+                if not self.lingvo :
+                  self.lingvo = data["users"][0]["preferredLanguage"]
+                self.display_name = data["users"][0]["displayName"]
             return True
 
     def post_url(self, url, datumoj, headers=None):
@@ -124,9 +156,9 @@ class FsSession:
                   return None
                 nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
-                r = requests.post(
+                r = self.session.post(
                     "https://api.familysearch.org" + url,
-                    cookies={"fssessionid": self.fssessionid},
+                    params={'access_token' : self.access_token},
                     timeout=self.timeout,
                     headers=headers,
                     data=datumoj,
@@ -185,6 +217,9 @@ class FsSession:
         if "Accept-Language" not in headers and self.lingvo :
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
+        req=requests.PreparedRequest()
+        params = {'access_token':self.access_token}
+        req.prepare_url("https://www.familysearch.org" + url, params)
         nbtry = 1
         while True:
             try:
@@ -193,9 +228,8 @@ class FsSession:
                   return None
                 nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
-                r = requests.head(
-                    "https://www.familysearch.org" + url,
-                    cookies={"fssessionid": self.fssessionid},
+                r = self.session.head(
+                    req.url,
                     timeout=self.timeout,
                     headers=headers,
                 )
@@ -218,17 +252,19 @@ class FsSession:
         if "Accept-Language" not in headers and self.lingvo:
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
-        nbtry = 1
+        req=requests.PreparedRequest()
+        params = {'access_token':self.access_token}
+        req.prepare_url("https://www.familysearch.org" + url, params)
+        nbtry = 0
         while True:
+            nbtry = nbtry + 1
+            if nbtry > 3 :
+              self.stato = STATO_ERARO
+              return None
             try:
-                if nbtry > 3 :
-                  self.stato = STATO_ERARO
-                  return None
-                nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
-                r = requests.get(
-                    "https://www.familysearch.org" + url,
-                    cookies={"fssessionid": self.fssessionid},
+                r = self.session.get(
+                    req.url,
                     timeout=self.timeout,
                     headers=headers,
                     allow_redirects=False
@@ -240,11 +276,11 @@ class FsSession:
                 self.write_log("Connection aborted")
                 time.sleep(self.timeout)
                 continue
-            self.write_log("Status code: %s" % r.status_code)
             if r.status_code == 204 or r.status_code == 301:
                 print("headers="+str(r.headers))
                 return r
             if r.status_code == 401:
+                return r
                 self.login()
                 continue
             if r.status_code in {400, 404, 405, 406, 410, 500}:
@@ -278,6 +314,7 @@ class FsSession:
                 time.sleep(self.timeout)
                 continue
             return r
+
     def get_jsonurl(self, url, headers=None):
         """retrieve JSON structure from a FamilySearch URL"""
         r = self.get_url(url,headers)
