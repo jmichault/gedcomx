@@ -12,9 +12,6 @@ fsid='2HMS-88F'
 if len(sys.argv) >=3 :
   fs_uzanto=sys.argv[1]
   fs_pasvorto=sys.argv[2]
-elif len(sys.argv) >=4 :
-  fs_uzanto=sys.argv[1]
-  fs_pasvorto=sys.argv[2]
   fsid=sys.argv[3]
 else :
   fs_uzanto=None

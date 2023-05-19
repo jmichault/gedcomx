@@ -50,6 +50,8 @@ class SimplaDato:
     if len(dato) <2:
       print("nekorekta formala dato: "+datumoj)
       return
+    if dato[0] == '+' :
+      dato=dato[1:]
     if dato[0] == '-' :
       x = dato[1:].split('-')
     else :

@@ -34,9 +34,9 @@ def akiri_url_aux_dos(url,dosiero):
       return
     try:
       jsonDat = json.loads(datumoj)
-      gedcomx.maljsonigi(arbo, jsonDat)
     except:
       print("ne validan json-datumojn.")
+    gedcomx.maljsonigi(arbo, jsonDat)
     return
   print("legas url "+url+".")
   global fs_sesio
@@ -58,7 +58,7 @@ def akiri_url_aux_dos(url,dosiero):
     print("url "+url+" ne trovita.")
 
 akiri_url_aux_dos("/platform/places/description/%s" % fsid
-            ,'rezultoj/person.description.'+fsid+'.fs.json')
+            ,'rezultoj/loko.description.'+fsid+'.fs.json')
 
 # 
 rezulto = gedcomx.jsonigi(arbo)

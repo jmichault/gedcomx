@@ -93,6 +93,7 @@ class Attribution(ExtensibleData):
 
 class Tag:
   resource: str
+  conclusionId: str # familySearch !
   def __init__(self):
     klaso_ini(self)
 
@@ -372,9 +373,9 @@ class Relationship(Subject):
         edzo = Person._indekso[self.person2.resourceId]
         edzo._paroj.add(self)
 
+# https://www.familysearch.org/developers/docs/api/types/json_ChildAndParentsRelationship
 class ChildAndParentsRelationship(Subject):
   _indekso: dict = dict()
-  # https://www.familysearch.org/developers/docs/api/types/json_ChildAndParentsRelationship
   parent1: ResourceReference
   parent2: ResourceReference
   child: ResourceReference
@@ -391,6 +392,17 @@ class ChildAndParentsRelationship(Subject):
      parent = Person._indekso[self.parent2.resourceId]
      parent._infanojCP.add(self)
 
+# family search ! Ne dokumentita ?
+class Value:
+  lang: str
+  type: str
+  text: str
+
+# family search ! Ne dokumentita ?
+class Field:
+  type: str
+  values: set[Value]
+
 class Person(Subject):
   _indekso: dict = dict()
   private: bool
@@ -401,6 +413,7 @@ class Person(Subject):
   display: DisplayProperties
   personInfo: set[PersonInfo]  # family search !
   discussion_references: set[DiscussionReference]  # family search !
+  fields: set[Field] # family search ! Ne dokumentita ?
   _gepatroj: set[Relationship]
   _infanoj: set[Relationship]
   _paroj: set[Relationship]
@@ -516,6 +529,12 @@ class PlaceDisplayProperties(ExtensibleData):
   fullName: str
   type: str
 
+# family search ! https://www.familysearch.org/developers/docs/api/types/json_PlaceDescriptionInfo
+class PlaceDescriptionInfo:
+  zoomLevel: int
+  relatedType: str
+  relatedSubType: str
+
 class PlaceDescription(Subject):
   _indekso: dict = dict()
   names: set[TextValue]
@@ -527,6 +546,7 @@ class PlaceDescription(Subject):
   jurisdiction: ResourceReference
   display: PlaceDisplayProperties
   type: str
+  placeDescriptionInfo: set[PlaceDescriptionInfo] # family search ! 
 
 class Gender(Conclusion):
   type: str
