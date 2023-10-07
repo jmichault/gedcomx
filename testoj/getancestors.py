@@ -66,7 +66,7 @@ def akiri_edzojn(arbo):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Retrieve GEDCOM data from FamilySearch Tree (4 Jul 2016)",
+        description="Retrieve GEDCOM data from FamilySearch Tree",
         add_help=False,
         usage="getmyancestors -u uzanto -p pasvorto [options]",
     )

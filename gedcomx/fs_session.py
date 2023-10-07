@@ -146,7 +146,7 @@ class FsSession:
 
     def post_url(self, url, datumoj, headers=None):
         if headers is None:
-            headers = {"Accept": "application/x-gedcomx-v1+json","Content-Type": "application/x-gedcomx-v1+json"}
+            headers = {"Accept": "application/x-fs-v1+json","Content-Type": "application/x-fs-v1+json"}
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
         headers ["Authorization"] = 'Bearer '+self.access_token
         nbtry = 1
@@ -213,7 +213,7 @@ class FsSession:
     def head_url(self, url, headers=None):
         self.counter += 1
         if headers is None:
-            headers = {"Accept": "application/x-gedcomx-v1+json"}
+            headers = {"Accept": "application/x-fs-v1+json"}
         if "Accept-Language" not in headers and self.lingvo :
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
@@ -246,7 +246,7 @@ class FsSession:
     def get_url(self, url, headers=None):
         self.counter += 1
         if headers is None:
-            headers = {"Accept": "application/x-gedcomx-v1+json"}
+            headers = {"Accept": "application/x-fs-v1+json"}
         if "Accept-Language" not in headers and self.lingvo:
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})

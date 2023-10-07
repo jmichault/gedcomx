@@ -7,15 +7,15 @@ from os.path import exists
 import gedcomx
 
 
-# fs id de Ludwik Łazarz Zamenhof
-fsid='2HMS-88F'
-if len(sys.argv) >=3 :
+if len(sys.argv) >=4 :
   fs_uzanto=sys.argv[1]
   fs_pasvorto=sys.argv[2]
   fsid=sys.argv[3]
 else :
   fs_uzanto=None
   fs_pasvorto=None
+  # fs id de Ludwik Łazarz Zamenhof
+  fsid='2HMS-88F'
 
 fs_sesio = None
 
@@ -46,13 +46,12 @@ def akiri_url_aux_dos(url,dosiero):
     global fs_pasvorto
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
     if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
-    fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
+    fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2, "en")
   r = fs_sesio.get_url(url
-            ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "fr"} )
+            ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "en"} )
   f = open(dosiero,'wb')
   f.write(r.content)
   f.close()
-  #print(r.headers)
   if r and r.status_code == 200:
     gedcomx.maljsonigi(arbo,r.json())
   else:
@@ -62,7 +61,6 @@ def akiri_personon(fsid):
     akiri_url_aux_dos("/platform/tree/persons/"+fsid,'rezultoj/person.'+fsid+'.fs.json')
 
 akiri_personon(fsid)
-print("access_token="+fs_sesio.access_token)
 
 rezulto = gedcomx.jsonigi(arbo)
 f = open('rezultoj/arbo.out.json','w')
