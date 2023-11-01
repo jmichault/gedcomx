@@ -56,33 +56,17 @@ def _aldKlaso(kl2,x,parent):
   havasIndekso = all_annotations(kl2).get("_indekso")
   if kl2.__name__ == "str":
     return str(x)
-  elif kl2.__name__ == 'Fact' :
+  elif  ( havasId and not havasIndekso ) :
     obj = None
-    if (hasattr(parent, 'facts') and x.get("id")) :
+    if kl2.__name__ == 'SourceReference' :
+      setName = 'sources'
+    else:
+      setName = kl2.__name__.lower()+'s'
+    if (hasattr(parent, setName) and x.get("id")) :
       id = x.get("id")
-      for f in parent.facts :
+      for f in getattr(parent,setName) :
         if f.id == id :
           obj = f
-          break
-    if not obj :
-      obj = kl2()
-  elif kl2.__name__ == 'Name' :
-    obj = None
-    if (hasattr(parent, 'names') and x.get("id")) :
-      id = x.get("id")
-      for o in parent.names :
-        if o.id == id :
-          obj = o
-          break
-    if not obj :
-      obj = kl2()
-  elif kl2.__name__ == 'Note' :
-    obj = None
-    if (hasattr(parent, 'notes') and x.get("id")) :
-      id = x.get("id")
-      for o in parent.notes :
-        if o.id == id :
-          obj = o
           break
     if not obj :
       obj = kl2()

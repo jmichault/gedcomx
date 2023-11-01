@@ -35,7 +35,7 @@ class ExtensibleData:
   # kelkaj klasoj kun unikaj «id» :
   #          Person, PlaceDescription, Relationship, SourceDescription, ChildAndParentsRelationship
   # kelkaj klasoj kun duplikataj «id» :
-  #          Fact, Name, Note
+  #          Fact, Name, Note, SourceReference
   #    ekzemplo : KJC1-LMJ kaj KJZM-ZWN : la naskiĝoj havas la saman «id»
   #    Mi supozas, ke ĉi-kaze la id estas unika rilate al la gepatra objekto.
   #    Ekzemple noto por individuo havas unikan identigilon por tiu individuo.
