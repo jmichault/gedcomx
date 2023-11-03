@@ -9,6 +9,7 @@ STATO_KONEKTITA = 1
 STATO_PASVORTA_ERARO = -1
 STATO_ERARO = -2
 
+vorteco=0
 
 class FsSession:
     """Create a FamilySearch session
@@ -29,12 +30,12 @@ class FsSession:
         self.lingvo = lingvo
         self.stato = STATO_INIT
         self.session = requests.session()
-        self.logged = self.login()
+        self.logged = False
 
     def write_log(self, text):
         """write text in the log file"""
         log = "[%s]: %s\n" % (time.strftime("%Y-%m-%d %H:%M:%S"), text)
-        if self.verbose:
+        if self.verbose or vorteco>0 :
             sys.stderr.write(log)
         if self.logfile:
             self.logfile.write(log)
@@ -43,28 +44,37 @@ class FsSession:
         """retrieve FamilySearch session ID
         (https://www.familysearch.org/developers/docs/guides/oauth2)
         """
+        self.logged = False
         nbtry = 1
         while True:
             if nbtry > 3 :
               self.stato = STATO_ERARO
               print("too many errors")
               return False
-
             try:
                 nbtry = nbtry + 1
+                # étape 1 : on appelle login, pour récupérer client_id et redirect_uri
                 url = "https://www.familysearch.org/auth/familysearch/login"
                 headers = {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'}
                 #headers ["Accept-Language"] = self.lingvo
                 r = self.session.get(url, params={"ldsauth": False}, allow_redirects=False, headers=headers)
                 import urllib
-                self.client_id = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['client_id'][0]
-                self.client_secret = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['client_secret'][0]
-                self.redirect_uri = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['redirect_uri'][0]
+                qs = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)
+                if qs.get('client_id') :
+                  self.client_id = qs.get('client_id')[0]
+                #self.client_id='MBVS-G7J8-7TSY-SPG3-G8ZT-7Q9N-MXRS-L8DK'
+                if qs.get('client_secret') :
+                  self.client_secret = qs.get('client_secret')
+                if qs.get('redirect_uri') :
+                  self.redirect_uri = qs['redirect_uri'][0]
+                # étape 2 : on appelle authorization, pour récupérer params
                 r = self.session.send(r.next)
                 idx = r.text.index('name="params" value="')
                 span = r.text[idx + 21 :].index('"')
                 params = r.text[idx + 21 : idx + 21 + span]
 
+                # étape 3 : on appelle authorization avec params, username et password
+                #          , on récupère le code
                 url = "https://ident.familysearch.org/cis-web/oauth2/v3/authorization"
                 r = self.session.post(
                     url,
@@ -91,21 +101,35 @@ class FsSession:
                 # get the authorization code from redirect url :
                 self.code = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['code'][0]
                 self.fssessionid = r.next._cookies["familysearch-sessionid"]
+                # étape 4 : on valide la session
+                url = r.headers["Location"]
+                self.write_log("Downloading: " + url)
+                r = requests.get(url, allow_redirects=False, headers=headers)
+                self.fssessionid = r.cookies["fssessionid"]
+                self.logged = True
+                print("konekta kun FamilySearch")
+                # étape 5 : on demande un token
+                data = {
+                       "code": self.code,
+                       "client_id": self.client_id,
+                       "grant_type": 'password',
+                        "username": self.username,
+                        "password": self.password,
+                      }
+                if hasattr(self,'client_secret') :
+                  data["client_secret"] = self.client_secret
                 url = 'https://ident.familysearch.org/cis-web/oauth2/v3/token'
                 r = self.session.post(
                     url,
                     timeout=self.timeout,
                     headers=headers,
-                    data={
-                       "code": self.code,
-                       "client_id": self.client_id,
-                       "client_secret": self.client_secret,
-                       "redirect_uri": self.redirect_uri,
-                       "grant_type": 'authorization_code',
-                      },
+                    data=data,
                     allow_redirects=False
                 )
-                self.access_token = r.json()['access_token']
+                json = r.json()
+                if json and json.get('access_token') :
+                  self.access_token = r.json()['access_token']
+                  print("FamilySearch-ĵetono akirita")
             except requests.exceptions.ReadTimeout:
                 self.write_log("Read timed out")
                 continue
@@ -128,13 +152,15 @@ class FsSession:
                 continue
 
             self.stato = STATO_KONEKTITA
-            url = "/platform/users/current?access_token="+self.access_token
+            url = "/platform/users/current"
             r = self.session.get(
                     "https://www.familysearch.org" + url,
                     timeout=self.timeout,
                     headers=headers,
+                    cookies={"fssessionid": self.fssessionid},
                     allow_redirects=False
                 )
+
             if r:
               data=r.json()
               if data:
@@ -145,10 +171,16 @@ class FsSession:
             return True
 
     def post_url(self, url, datumoj, headers=None):
+        if not self.logged :
+          self.login()
         if headers is None:
-            headers = {"Accept": "application/x-gedcomx-v1+json","Content-Type": "application/x-gedcomx-v1+json"}
+          headers = {"Accept": "application/x-gedcomx-v1+json","Content-Type": "application/x-gedcomx-v1+json"}
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
-        headers ["Authorization"] = 'Bearer '+self.access_token
+        cookies = None
+        if hasattr(self,'access_token') :
+          headers ["Authorization"] = 'Bearer '+self.access_token
+        else :
+          cookies = {"fssessionid": self.fssessionid}
         nbtry = 1
         while True:
             try:
@@ -161,6 +193,7 @@ class FsSession:
                     "https://api.familysearch.org" + url,
                     timeout=self.timeout,
                     headers=headers,
+                    cookies=cookies,
                     data=datumoj,
                     allow_redirects=False
                 )
@@ -211,13 +244,19 @@ class FsSession:
                 return None
 
     def head_url(self, url, headers=None):
+        if not self.logged :
+          self.login()
         self.counter += 1
         if headers is None:
             headers = {"Accept": "application/x-gedcomx-v1+json"}
         if "Accept-Language" not in headers and self.lingvo :
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
-        headers ["Authorization"] = 'Bearer '+self.access_token
+        cookies = None
+        if hasattr(self,'access_token') :
+          headers ["Authorization"] = 'Bearer '+self.access_token
+        else :
+          cookies = {"fssessionid": self.fssessionid}
         nbtry = 1
         while True:
             try:
@@ -230,6 +269,7 @@ class FsSession:
                     "https://www.familysearch.org" + url,
                     timeout=self.timeout,
                     headers=headers,
+                    cookies=cookies,
                 )
             except requests.exceptions.ReadTimeout:
                 self.write_log("Read timed out")
@@ -244,13 +284,19 @@ class FsSession:
             return r
 
     def get_url(self, url, headers=None):
+        if not self.logged :
+          self.login()
         self.counter += 1
         if headers is None:
             headers = {"Accept": "application/x-gedcomx-v1+json"}
         if "Accept-Language" not in headers and self.lingvo:
             headers ["Accept-Language"] = self.lingvo
         headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
-        headers ["Authorization"] = 'Bearer '+self.access_token
+        cookies = None
+        if hasattr(self,'access_token') :
+          headers ["Authorization"] = 'Bearer '+self.access_token
+        else :
+          cookies = {"fssessionid": self.fssessionid}
         nbtry = 0
         while True:
             nbtry = nbtry + 1
@@ -263,6 +309,7 @@ class FsSession:
                     "https://www.familysearch.org" + url,
                     timeout=self.timeout,
                     headers=headers,
+                    cookies=cookies,
                     allow_redirects=False
                 )
             except requests.exceptions.ReadTimeout:
