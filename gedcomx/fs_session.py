@@ -3,13 +3,16 @@ import sys
 import time
 
 import requests
+import urllib
 
 STATO_INIT = 0
-STATO_KONEKTITA = 1
+STATO_LOGIN = 1
+STATO_KONEKTITA = 2
 STATO_PASVORTA_ERARO = -1
 STATO_ERARO = -2
 
-vorteco=0
+vorteco=1
+#import pdb; pdb.set_trace()
 
 class FsSession:
     """Create a FamilySearch session
@@ -17,9 +20,11 @@ class FsSession:
     :param verbose: True to active verbose mode
     :param logfile: a file object or similar
     :param timeout: time before retry a request
+    :param lingvo:
+    :param client_id: FamilySearch client_id
     """
 
-    def __init__(self, username, password, verbose=False, logfile=False, timeout=60, lingvo=None):
+    def __init__(self, username=None, password=None, verbose=False, logfile=False, timeout=60, lingvo=None, client_id=None):
         self.username = username
         self.password = password
         self.verbose = verbose
@@ -31,6 +36,11 @@ class FsSession:
         self.stato = STATO_INIT
         self.session = requests.session()
         self.logged = False
+        self.client_id = client_id
+        self.ip_address = None
+        self.redirect_uri = None
+        self.state = None
+        self.private = None
 
     def write_log(self, text):
         """write text in the log file"""
@@ -40,138 +50,110 @@ class FsSession:
         if self.logfile:
             self.logfile.write(log)
 
+
+    def login_credentials(self) :
+        print("!!!Désolé, l'authentification de type «client_credentials» n'a pas été testée")
+        self.logged = False
+        self.stato = STATO_LOGIN
+        if not self.client_id :
+          print("vous avez besoin d'un client_id pour une authentification de type «client_credentials»")
+          self.stato = STATO_ERARO
+          return False
+        if not self.private :
+          print("vous avez besoin d'une clé privée pour une authentification de type «client_credentials»")
+          self.stato = STATO_ERARO
+          return False
+        timestamp = format(time.time(),'.3f').encode('utf8')
+        import rsa,base64
+        secret = base64.b64encode(rsa.sign(timestamp,self.private,'SHA-512'))
+        data = {
+                   "grant_type": 'client_credentials',
+                   "client_id": self.client_id,
+                   "client_secret": secret,
+                 }
+        url = 'https://ident.familysearch.org/cis-web/oauth2/v3/token'
+        r = self.post_url(url,data)
+        if vorteco :
+          print(" étape client_credentials, r="+str(r))
+          print("        , r.text="+r.text)
+        json = r.json()
+        if json and json.get('access_token') :
+          self.access_token = r.json()['access_token']
+          print("FamilySearch-ĵetono akirita")
+          self.logged = True
+          self.stato = STATO_KONEKTITA
+          return True
+        else:
+          print(" échec de connexion")
+          return False
+
+
+    def login_password(self):
+        self.logged = False
+        self.stato = STATO_LOGIN
+        if not self.client_id :
+          print("vous avez besoin d'un client_id pour une authentification de type «password»")
+          self.stato = STATO_ERARO
+          return False
+        data = {
+                   "grant_type": 'password',
+                   "client_id": self.client_id,
+                   "username": self.username,
+                   "password": self.password,
+                 }
+        url = 'https://ident.familysearch.org/cis-web/oauth2/v3/token'
+        headers = {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'}
+        r = self.post_url(url,data,headers)
+        if vorteco :
+          print(" étape anon, r="+str(r))
+          print("        , r.text="+r.text)
+        json = r.json()
+        if json and json.get('access_token') :
+          self.access_token = r.json()['access_token']
+          print("FamilySearch-ĵetono akirita")
+          self.logged = True
+          self.stato = STATO_KONEKTITA
+          return True
+
     def login(self):
         """retrieve FamilySearch session ID
         (https://www.familysearch.org/developers/docs/guides/oauth2)
         """
         self.logged = False
-        nbtry = 1
-        while True:
-            if nbtry > 3 :
-              self.stato = STATO_ERARO
-              print("too many errors")
-              return False
-            try:
-                nbtry = nbtry + 1
-                # étape 1 : on appelle login, pour récupérer client_id et redirect_uri
-                url = "https://www.familysearch.org/auth/familysearch/login"
-                headers = {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'}
-                #headers ["Accept-Language"] = self.lingvo
-                r = self.session.get(url, params={"ldsauth": False}, allow_redirects=False, headers=headers)
-                import urllib
-                qs = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)
-                if qs.get('client_id') :
-                  self.client_id = qs.get('client_id')[0]
-                #self.client_id='MBVS-G7J8-7TSY-SPG3-G8ZT-7Q9N-MXRS-L8DK'
-                if qs.get('client_secret') :
-                  self.client_secret = qs.get('client_secret')
-                if qs.get('redirect_uri') :
-                  self.redirect_uri = qs['redirect_uri'][0]
-                # étape 2 : on appelle authorization, pour récupérer params
-                r = self.session.send(r.next)
-                idx = r.text.index('name="params" value="')
-                span = r.text[idx + 21 :].index('"')
-                params = r.text[idx + 21 : idx + 21 + span]
+        self.stato = STATO_LOGIN
+        # étape 1 : on appelle login, pour récupérer XSRF-TOKEN et client_id
+        url = "https://www.familysearch.org/auth/familysearch/login"
+        headers = {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'}
+        r = self.session.get(url, headers=headers)
+        self.xsrf = self.session.cookies["XSRF-TOKEN"]
+        # étape 2 : on appelle /login
+        url = "https://ident.familysearch.org/login"
+        data = {
+                "_csrf": self.xsrf,
+                "username": self.username,
+                "password": self.password,
+               }
+        r = self.session.post(url,data)
+        # étape 3 : on suit redirectUrl pour valider
+        try:
+          data = r.json()
+        except ValueError:
+          self.write_log("Invalid auth request")
+          return
+        if "loginError" in data:
+          self.write_log(data["loginError"])
+          return
+        if "redirectUrl" not in data:
+          self.write_log(res.text)
+          return
+        url = data["redirectUrl"]
+        r = self.session.get(url, headers=headers)
+        self.logged = True
+        self.stato = STATO_KONEKTITA
 
-                # étape 3 : on appelle authorization avec params, username et password
-                #          , on récupère le code
-                url = "https://ident.familysearch.org/cis-web/oauth2/v3/authorization"
-                r = self.session.post(
-                    url,
-                    data={
-                        "params": params,
-                        "userName": self.username,
-                        "password": self.password,
-                        "privateComputer": False
-                    },
-                    timeout=self.timeout,
-                    allow_redirects=False,headers=headers,
-                )
-
-                if "The username or password was incorrect" in r.text:
-                    self.write_log("The username or password was incorrect")
-                    self.stato = STATO_PASVORTA_ERARO
-                    return False
-
-                if "Invalid Oauth2 Request" in r.text:
-                    self.write_log("Invalid Oauth2 Request")
-                    time.sleep(self.timeout)
-                    continue
-
-                # get the authorization code from redirect url :
-                self.code = urllib.parse.parse_qs(urllib.parse.urlparse(r.next.url).query)['code'][0]
-                self.fssessionid = r.next._cookies["familysearch-sessionid"]
-                # étape 4 : on valide la session
-                url = r.headers["Location"]
-                self.write_log("Downloading: " + url)
-                r = requests.get(url, allow_redirects=False, headers=headers)
-                self.fssessionid = r.cookies["fssessionid"]
-                self.logged = True
-                print("konekta kun FamilySearch")
-                # étape 5 : on demande un token
-                data = {
-                       "code": self.code,
-                       "client_id": self.client_id,
-                       "grant_type": 'password',
-                        "username": self.username,
-                        "password": self.password,
-                      }
-                if hasattr(self,'client_secret') :
-                  data["client_secret"] = self.client_secret
-                url = 'https://ident.familysearch.org/cis-web/oauth2/v3/token'
-                r = self.session.post(
-                    url,
-                    timeout=self.timeout,
-                    headers=headers,
-                    data=data,
-                    allow_redirects=False
-                )
-                json = r.json()
-                if json and json.get('access_token') :
-                  self.access_token = r.json()['access_token']
-                  print("FamilySearch-ĵetono akirita")
-            except requests.exceptions.ReadTimeout:
-                self.write_log("Read timed out")
-                continue
-            except requests.exceptions.ConnectionError:
-                self.write_log("Connection aborted")
-                time.sleep(self.timeout)
-                continue
-            except requests.exceptions.HTTPError:
-                self.write_log("HTTPError")
-                time.sleep(self.timeout)
-                continue
-            except KeyError:
-                self.write_log("KeyError")
-                print(r.content)
-                time.sleep(self.timeout)
-                continue
-            except ValueError:
-                self.write_log("ValueError")
-                time.sleep(self.timeout)
-                continue
-
-            self.stato = STATO_KONEKTITA
-            url = "/platform/users/current"
-            r = self.session.get(
-                    "https://www.familysearch.org" + url,
-                    timeout=self.timeout,
-                    headers=headers,
-                    cookies={"fssessionid": self.fssessionid},
-                    allow_redirects=False
-                )
-
-            if r:
-              data=r.json()
-              if data:
-                self.fid = data["users"][0]["personId"]
-                if not self.lingvo :
-                  self.lingvo = data["users"][0]["preferredLanguage"]
-                self.display_name = data["users"][0]["displayName"]
-            return True
 
     def post_url(self, url, datumoj, headers=None):
-        if not self.logged :
+        if not self.logged and self.stato==STATO_INIT:
           self.login()
         if headers is None:
           headers = {"Accept": "application/x-gedcomx-v1+json","Content-Type": "application/x-gedcomx-v1+json"}
@@ -179,18 +161,19 @@ class FsSession:
         cookies = None
         if hasattr(self,'access_token') :
           headers ["Authorization"] = 'Bearer '+self.access_token
-        else :
-          cookies = {"fssessionid": self.fssessionid}
+        if url[0:4] != 'http' :
+          url="https://api.familysearch.org" + url
         nbtry = 1
         while True:
             try:
                 if nbtry > 3 :
                   self.stato = STATO_ERARO
+                  self.logged = False
                   return None
                 nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
                 r = self.session.post(
-                    "https://api.familysearch.org" + url,
+                    url,
                     timeout=self.timeout,
                     headers=headers,
                     cookies=cookies,
@@ -255,13 +238,12 @@ class FsSession:
         cookies = None
         if hasattr(self,'access_token') :
           headers ["Authorization"] = 'Bearer '+self.access_token
-        else :
-          cookies = {"fssessionid": self.fssessionid}
         nbtry = 1
         while True:
             try:
                 if nbtry > 3 :
                   self.stato = STATO_ERARO
+                  self.logged = False
                   return None
                 nbtry = nbtry + 1
                 self.write_log("Downloading :" + url)
@@ -295,13 +277,12 @@ class FsSession:
         cookies = None
         if hasattr(self,'access_token') :
           headers ["Authorization"] = 'Bearer '+self.access_token
-        else :
-          cookies = {"fssessionid": self.fssessionid}
         nbtry = 0
         while True:
             nbtry = nbtry + 1
             if nbtry > 3 :
               self.stato = STATO_ERARO
+              self.logged = False
               return None
             try:
                 self.write_log("Downloading :" + url)

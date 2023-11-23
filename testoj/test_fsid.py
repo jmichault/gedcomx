@@ -12,10 +12,11 @@ fsid='2HMS-88F'
 if len(sys.argv) >=3 :
   fs_uzanto=sys.argv[1]
   fs_pasvorto=sys.argv[2]
-  fsid=sys.argv[3]
 else :
   fs_uzanto=None
   fs_pasvorto=None
+if len(sys.argv) >=4 :
+  fsid=sys.argv[3]
 
 fs_sesio = None
 
@@ -47,6 +48,8 @@ def akiri_url_aux_dos(url,dosiero):
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
     if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
     fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
+  if not fs_sesio.logged :
+    fs_sesio.login()
   r = fs_sesio.get_url(url
             ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "fr"} )
   f = open(dosiero,'wb')
@@ -62,7 +65,6 @@ def akiri_personon(fsid):
     akiri_url_aux_dos("/platform/tree/persons/"+fsid,'rezultoj/person.'+fsid+'.fs.json')
 
 akiri_personon(fsid)
-print("access_token="+fs_sesio.access_token)
 
 rezulto = gedcomx.jsonigi(arbo)
 f = open('rezultoj/arbo.out.json','w')

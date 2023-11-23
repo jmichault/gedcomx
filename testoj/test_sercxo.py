@@ -31,6 +31,8 @@ else:
       if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
       if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
       fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
+  if not fs_sesio.logged :
+    fs_sesio.login()
   r = fs_sesio.get_url(
                "/platform/tree/search?q.surname=Jallobert&q.givenName=Jerome&q.sex=Male&q.birthLikeDate=+1604-12-31&q.deathLikeDate=+1636&q.anyPlace=Saint-Malo&offset=0&count=10"
               ,{"Accept": "application/x-gedcomx-atom+json"} )

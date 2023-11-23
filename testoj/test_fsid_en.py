@@ -47,6 +47,8 @@ def akiri_url_aux_dos(url,dosiero):
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
     if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
     fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2, "en")
+  if not fs_sesio.logged :
+    fs_sesio.login()
   r = fs_sesio.get_url(url
             ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "en"} )
   f = open(dosiero,'wb')

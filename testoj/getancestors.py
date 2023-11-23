@@ -24,6 +24,8 @@ def akiri_url(url):
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
     if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
     fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
+  if not fs_sesio.logged :
+    fs_sesio.login()
   r = fs_sesio.get_url(url
             ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "fr"} )
   if r and r.status_code == 200:

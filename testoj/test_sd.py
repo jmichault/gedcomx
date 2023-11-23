@@ -14,8 +14,8 @@ if len(sys.argv) >=4 :
 else :
   fs_uzanto=None
   fs_pasvorto=None
-  # fs id de Paris 9
-  fsid='11928800'
+  # fs id de Ferdinand Michault
+  fsid='3HB2-CPT'
 
 fs_sesio = None
 
@@ -32,11 +32,7 @@ def akiri_url_aux_dos(url,dosiero):
     if not datumoj or datumoj == "":
       print("ne datumojn.")
       return
-    try:
-      jsonDat = json.loads(datumoj)
-    except:
-      print("ne validan json-datumojn.")
-    gedcomx.maljsonigi(arbo, jsonDat)
+    gedcomx.malxmligi(arbo, datumoj)
     return
   print("legas url "+url+".")
   global fs_sesio
@@ -49,18 +45,20 @@ def akiri_url_aux_dos(url,dosiero):
     fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
   if not fs_sesio.logged :
     fs_sesio.login()
+  #import pdb; pdb.set_trace()
   r = fs_sesio.get_url(url
-            ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "fr,en,de,es"} )
+            ,{"Accept": "application/xml", "Accept-Language": "fr,en,de,es"} )
   f = open(dosiero,'wb')
   f.write(r.content)
   f.close()
   if r and r.status_code == 200:
-    gedcomx.maljsonigi(arbo,r.json())
+    gedcomx.malxmligi(arbo,r.content)
   else:
     print("url "+url+" ne trovita.")
 
-akiri_url_aux_dos("/platform/places/description/%s" % fsid
-            ,'rezultoj/loko.description.'+fsid+'.fs.json')
+#akiri_url_aux_dos("/platform/sources/descriptions/%s" % fsid
+akiri_url_aux_dos("/service/tree/links/sources/%s" % fsid
+            ,'rezultoj/sd.description.'+fsid+'.fs.xml')
 
 # 
 rezulto = gedcomx.jsonigi(arbo)
