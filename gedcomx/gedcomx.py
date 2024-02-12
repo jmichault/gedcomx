@@ -131,6 +131,7 @@ class DiscussionReference(HypermediaEnabledData):
   resource: str
   attribution: Attribution
 
+# https://www.familysearch.org/developers/docs/api/types/json_SourceReference
 class SourceReference(HypermediaEnabledData):
   description: str
   descriptionId: str

@@ -147,7 +147,10 @@ class FsSession:
           self.write_log(res.text)
           return
         url = data["redirectUrl"]
-        r = self.session.get(url, headers=headers)
+        try :
+          r = self.session.get(url, headers=headers)
+        except TooManyRedirects :
+          pass
         self.logged = True
         self.stato = STATO_KONEKTITA
 
@@ -194,7 +197,10 @@ class FsSession:
             if r.status_code == 401:
                 self.login()
                 continue
-            if r.status_code in {400, 404, 405, 406, 410, 500}:
+            if r.status_code == 400:
+                self.write_log("WARNING 400: " + url)
+                return None
+            if r.status_code in { 404, 405, 406, 410, 500}:
                 self.write_log("WARNING: " + url)
                 self.write_log(r)
                 return r
@@ -301,13 +307,17 @@ class FsSession:
                 time.sleep(self.timeout)
                 continue
             if r.status_code == 204 or r.status_code == 301:
+                self.write_log("Status code: %s" % r.status_code)
                 print("headers="+str(r.headers))
                 return r
             if r.status_code == 401:
                 return r
                 self.login()
                 continue
-            if r.status_code in {400, 404, 405, 406, 410, 500}:
+            if r.status_code == 400:
+                self.write_log("WARNING 400: " + url)
+                return None
+            if r.status_code in { 404, 405, 406, 410, 500}:
                 self.write_log("WARNING: " + url)
                 self.write_log(r.text)
                 return None
@@ -346,7 +356,7 @@ class FsSession:
           try:
             return r.json()
           except Exception as e:
-            self.write_log("WARNING: corrupted file from %s, error: %s" % (url, e))
+            self.write_log("WARNING:  corrupted file from %s, error: %s" % (url, e))
             print(r.content)
             return None
 
