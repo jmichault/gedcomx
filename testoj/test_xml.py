@@ -4,12 +4,12 @@ import json
 import xml.etree.ElementTree as ET
 from os.path import exists
 
-import gedcomx
+import gedcomx_v1
 
 fs_sesio = None
 
 # krei genealogian arbon
-arbo=gedcomx.xmlGedcomx()
+arbo=gedcomx_v1.xmlGedcomx()
 
 import re
 
@@ -30,13 +30,13 @@ def akiri_dos(dosiero):
     if not datumoj or datumoj == "":
       print("ne datumojn.")
       return
-    gedcomx.malxmligi(arbo, datumoj)
+    gedcomx_v1.malxmligi(arbo, datumoj)
     return
   print("dosiero ne trovita "+dosiero+".")
 
-arbo=gedcomx.xmlGedcomx()
+arbo=gedcomx_v1.xmlGedcomx()
 akiri_dos('rezultoj/arbo.out.xml')
-rezulto = gedcomx.jsonigi(arbo)
+rezulto = gedcomx_v1.jsonigi(arbo)
 f = open('rezultoj/arboxml.out2.json','w')
 json.dump(rezulto,f,indent=2)
 f.close()

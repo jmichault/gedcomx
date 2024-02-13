@@ -4,7 +4,7 @@ import json
 import xml.etree.ElementTree as ET
 from os.path import exists
 
-import gedcomx
+import gedcomx_v1
 
 
 # fs id de Ludwik Łazarz Zamenhof
@@ -21,7 +21,7 @@ if len(sys.argv) >=4 :
 fs_sesio = None
 
 # krei genealogian arbon
-arbo=gedcomx.Gedcomx()
+arbo=gedcomx_v1.Gedcomx()
 
 def akiri_url_aux_dos(url,dosiero):
   global arbo
@@ -35,7 +35,7 @@ def akiri_url_aux_dos(url,dosiero):
       return
     try:
       jsonDat = json.loads(datumoj)
-      gedcomx.maljsonigi(arbo, jsonDat)
+      gedcomx_v1.maljsonigi(arbo, jsonDat)
     except:
       print("ne validan json-datumojn.")
     return
@@ -47,7 +47,7 @@ def akiri_url_aux_dos(url,dosiero):
     global fs_pasvorto
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
     if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
-    fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
+    fs_sesio = gedcomx_v1.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
   if not fs_sesio.logged :
     fs_sesio.login()
   r = fs_sesio.get_url(url
@@ -57,7 +57,7 @@ def akiri_url_aux_dos(url,dosiero):
   f.close()
   #print(r.headers)
   if r and r.status_code == 200:
-    gedcomx.maljsonigi(arbo,r.json())
+    gedcomx_v1.maljsonigi(arbo,r.json())
   else:
     print("url "+url+" ne trovita.")
 
@@ -66,12 +66,12 @@ def akiri_personon(fsid):
 
 akiri_personon(fsid)
 
-rezulto = gedcomx.jsonigi(arbo)
+rezulto = gedcomx_v1.jsonigi(arbo)
 f = open('rezultoj/arbo.out.json','w')
 json.dump(rezulto,f,indent=2)
 f.close()
 
-xml = gedcomx.xmligi(arbo)
+xml = gedcomx_v1.xmligi(arbo)
 ET.indent(xml)
 xml.write('rezultoj/arbo.out.xml',encoding='UTF-8'
     ,xml_declaration='version="1.0" standalone="yes"'

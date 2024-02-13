@@ -6,12 +6,12 @@ import sys
 import xml.etree.ElementTree as ET
 from os.path import exists
 
-import gedcomx
+import gedcomx_v1
 
 fs_sesio = None
 fs_uzanto = None
 fs_pasvorto = None
-arbo=gedcomx.Gedcomx()
+arbo=gedcomx_v1.Gedcomx()
 
 def akiri_url(url):
   global arbo
@@ -23,26 +23,26 @@ def akiri_url(url):
     global fs_pasvorto
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
     if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
-    fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
+    fs_sesio = gedcomx_v1.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
   if not fs_sesio.logged :
     fs_sesio.login()
   r = fs_sesio.get_url(url
             ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "fr"} )
   if r and r.status_code == 200:
-    gedcomx.maljsonigi(arbo,r.json())
+    gedcomx_v1.maljsonigi(arbo,r.json())
   else:
     print("url "+url+" ne trovita.")
 
 def akiri_personon(fsid):
-  if fsid in gedcomx.Person._indekso.keys():
-    persono = gedcomx.Person._indekso[fsid]
+  if fsid in gedcomx_v1.Person._indekso.keys():
+    persono = gedcomx_v1.Person._indekso[fsid]
     if not persono.sortKey is None :
       return
   print (" akiri "+fsid)
   akiri_url("/platform/tree/persons/"+fsid)
 
 def akiri_gepatrojn(arbo,fsid):
-  persono = gedcomx.Person._indekso[fsid]
+  persono = gedcomx_v1.Person._indekso[fsid]
   rels = set()
   for paro in persono._gepatroj :
     rels |= {paro.person1.resourceId , paro.person2.resourceId }
@@ -143,7 +143,7 @@ def main():
     global fs_pasvorto
     fs_pasvorto = args.pasvorto
     global fs_sesio
-    fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
+    fs_sesio = gedcomx_v1.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
     # add list of starting individuals to the family tree
     x = args.individuals if args.individuals else [fs_sesio.fid]
     for fsid in x :
@@ -162,7 +162,7 @@ def main():
     if args.edzoj:
       akiri_edzojn(arbo)
 
-    rezulto = gedcomx.jsonigi(arbo)
+    rezulto = gedcomx_v1.jsonigi(arbo)
     f = open(args.outfile.name,'w')
     json.dump(rezulto,f,indent=2)
     f.close()

@@ -4,7 +4,7 @@ import json
 import xml.etree.ElementTree as ET
 from os.path import exists
 
-import gedcomx
+import gedcomx_v1
 
 
 if len(sys.argv) >=3 :
@@ -23,7 +23,7 @@ fsid2='2HMS-8MZ'
 fs_sesio = None
 
 # krei genealogian arbon
-arbo=gedcomx.Gedcomx()
+arbo=gedcomx_v1.Gedcomx()
 
 def akiri_persono_de_url(fsid):
   global fs_sesio
@@ -34,13 +34,13 @@ def akiri_persono_de_url(fsid):
   if fs_sesio is None:
     if not fs_uzanto : fs_uzanto = input("Enigu FamilySearch uzantnomon:")
     if not fs_pasvorto : fs_pasvorto = input("Enigu FamilySearch pasvorton:")
-    fs_sesio = gedcomx.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
+    fs_sesio = gedcomx_v1.FsSession(fs_uzanto,fs_pasvorto, True, False, 2)
   if not fs_sesio.logged :
     fs_sesio.login()
   
   datumoj = fs_sesio.get_url("/platform/tree/persons/"+fsid
             ,{"Accept": "application/x-fs-v1+json", "Accept-Language": "fr"} )
-  gedcomx.maljsonigi(arbo,datumoj.json())
+  gedcomx_v1.maljsonigi(arbo,datumoj.json())
   # 
   f = open('rezultoj/person.'+fsid+'.fs.json','wb')
   f.write(datumoj.content)
@@ -50,10 +50,10 @@ def akiri_persono_de_dosiero(fsid):
   f = open('rezultoj/person.'+fsid+'.fs.json','rb')
   datumoj = f.read()
   f.close()
-  gedcomx.maljsonigi(arbo, json.loads(datumoj))
+  gedcomx_v1.maljsonigi(arbo, json.loads(datumoj))
 
 def akiri_gepatroj(arbo,fsid):
-  persono = gedcomx.Person._indekso[fsid]
+  persono = gedcomx_v1.Person._indekso[fsid]
   rels = set()
   for paro in persono._gepatroj :
     rels |= {paro.person1.resourceId , paro.person2.resourceId }
@@ -72,13 +72,13 @@ else:
   akiri_persono_de_url(fsid)
 akiri_gepatroj(arbo,fsid)
 
-rezulto = gedcomx.jsonigi(arbo)
+rezulto = gedcomx_v1.jsonigi(arbo)
 
 f = open('rezultoj/arbo.out.json','w')
 json.dump(rezulto,f,indent=2)
 f.close()
 
-xml = gedcomx.xmligi(arbo)
+xml = gedcomx_v1.xmligi(arbo)
 
 ET.indent(xml)
 xml.write('rezultoj/arbo.out.xml',encoding='UTF-8'
@@ -90,13 +90,13 @@ if exists('rezultoj/person.'+fsid2+'.fs.json'):
 else:
   akiri_persono_de_url(fsid2)
 
-rezulto = gedcomx.jsonigi(arbo)
+rezulto = gedcomx_v1.jsonigi(arbo)
 
 f = open('rezultoj/arbo2.out.json','w')
 json.dump(rezulto,f,indent=2)
 f.close()
 
-xml = gedcomx.xmligi(arbo)
+xml = gedcomx_v1.xmligi(arbo)
 
 ET.indent(xml)
 xml.write('rezultoj/arbo2.out.xml',encoding='UTF-8'

@@ -24,11 +24,11 @@ import datetime
 
 import xml.etree.ElementTree as ET
 
-import gedcomx.gedcomx
+import gedcomx_v1.gedcomx
 
-from gedcomx.gedcomx import Gedcomx
-from gedcomx.json import maljsonigi, all_annotations, _aldKlaso
-from gedcomx.dateformal import SimplaDato
+from gedcomx_v1.gedcomx import Gedcomx
+from gedcomx_v1.json import maljsonigi, all_annotations, _aldKlaso
+from gedcomx_v1.dateformal import SimplaDato
 
 verb=False
 
@@ -126,7 +126,7 @@ class xmlero:
       setattr(patro,attrnomo, attr)
       self._attr[self._depth]=attr
       #from objbrowser import browse ;browse(locals())
-    elif sann == 'dict[str, gedcomx.gedcomx.Link]' : # speciala kazo : dict[str, Link]
+    elif sann == 'dict[str, gedcomx_v1.gedcomx.Link]' : # speciala kazo : dict[str, Link]
       self._isdict[self._depth]=True
       kl2 = ann.__args__[1]
       if verb: print("   dict[: "+sann+" ; attrib="+str(attrib))

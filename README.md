@@ -1,8 +1,8 @@
 
-# Kio estas gedcomx ?
+# Kio estas gedcomx_v1 ?
 Ĝi estas biblioteko por manipuli la gedcomx-formaton uzatan en genealogio.
 
-Kun gedcomx, vi povas legi kaj skribi json-datumojn.  
+Kun gedcomx_v1, vi povas legi kaj skribi json-datumojn.  
 Xml-datumoj ne estas bone subtenataj, vi ne uzu ĝin.
 
 Por pliaj informoj pri gedcomx-formaton, vidu:
@@ -36,15 +36,15 @@ Por pliaj informoj pri gedcomx-formaton, vidu:
     rm get-pip.py
     ```
 
-3. Instalu gedcomx
+3. Instalu gedcomx_v1
     ```sh
-    python3 -m pip install gedcomx-v1
+    python3 -m pip install gedcomx_v1 --break-system-packages
     ```
 
 # Promocio
 
 ```sh
-python3 -m pip install --upgrade --force-reinstall gedcomx-v1
+python3 -m pip install --upgrade --force-reinstall gedcomx_v1 --break-system-packages
 ```
 
 # Ekzemploj
