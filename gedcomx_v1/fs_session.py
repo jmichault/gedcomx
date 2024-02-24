@@ -232,6 +232,83 @@ class FsSession:
                 self.write_log("WARNING: corrupted file from %s, error: %s" % (url, e))
                 return None
 
+    def put_url(self, url, datumoj, headers=None):
+        if not self.logged and self.stato==STATO_INIT:
+          self.login()
+        if headers is None:
+          headers = {"Accept": "application/x-gedcomx-v1+json","Content-Type": "application/x-gedcomx-v1+json"}
+        headers.update( {'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36'})
+        cookies = None
+        if hasattr(self,'access_token') :
+          headers ["Authorization"] = 'Bearer '+self.access_token
+        if url[0:4] != 'http' :
+          url="https://api.familysearch.org" + url
+        nbtry = 1
+        while True:
+            try:
+                if nbtry > 3 :
+                  self.stato = STATO_ERARO
+                  self.logged = False
+                  return None
+                nbtry = nbtry + 1
+                self.write_log("Downloading :" + url)
+                r = self.session.put(
+                    url,
+                    timeout=self.timeout,
+                    headers=headers,
+                    #cookies=cookies,
+                    data=datumoj,
+                    allow_redirects=False
+                )
+            except requests.exceptions.ReadTimeout:
+                self.write_log("Read timed out")
+                continue
+            except requests.exceptions.ConnectionError:
+                self.write_log("Connection aborted")
+                time.sleep(self.timeout)
+                continue
+            self.write_log("Status code: %s" % r.status_code)
+            if r.status_code == 204:
+                self.write_log("headers="+str(r.headers))
+                return r
+            if r.status_code == 401:
+                self.login()
+                continue
+            if r.status_code == 400:
+                self.write_log("WARNING 400: " + url)
+                return None
+            if r.status_code in { 404, 405, 406, 410, 500}:
+                self.write_log("WARNING: " + url)
+                self.write_log(r)
+                return r
+            try:
+                r.raise_for_status()
+            except requests.exceptions.HTTPError:
+                self.write_log("HTTPError")
+                if r.status_code == 403:
+                    if (
+                        "message" in r.json()["errors"][0]
+                        and r.json()["errors"][0]["message"]
+                        == "Unable to get ordinances."
+                    ):
+                        self.write_log(
+                            "Unable to get ordinances. "
+                            "Try with an LDS account or without option -c."
+                        )
+                        return "error"
+                    self.write_log(
+                        "WARNING: code 403 from %s %s"
+                        % (url, r.json()["errors"][0]["message"] or "")
+                    )
+                    return r
+                time.sleep(self.timeout)
+                continue
+            try:
+                return r
+            except Exception as e:
+                self.write_log("WARNING: corrupted file from %s, error: %s" % (url, e))
+                return None
+
     def head_url(self, url, headers=None):
         if not self.logged :
           self.login()
