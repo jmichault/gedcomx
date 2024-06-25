@@ -4,7 +4,6 @@ import time
 
 import requests
 import urllib
-from fake_useragent import UserAgent
 
 STATO_INIT = 0
 STATO_LOGIN = 1
@@ -37,7 +36,11 @@ class FsSession:
         self.lingvo = lingvo
         self.stato = STATO_INIT
         self.session = requests.session()
-        self.session.headers = {"User-Agent": UserAgent().firefox}
+        try:
+          from fake_useragent import UserAgent
+          self.session.headers = {"User-Agent": UserAgent().firefox}
+        except:
+          self.session.headers = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"}
         self.logged = False
         self.client_id = client_id
         self.ip_address = None
@@ -124,6 +127,8 @@ class FsSession:
         """
         self.logged = False
         self.stato = STATO_LOGIN
+        url = "https://www.familysearch.org/"
+        r = self.session.get(url)
         # étape 1 : on appelle login, qui redirige vers authorization puis authorize, pour récupérer XSRF-TOKEN et client_id
         url = "https://www.familysearch.org/auth/familysearch/login"
         r = self.session.get(url)
@@ -173,7 +178,8 @@ class FsSession:
           code= loc[poscode+5:]
         else :
           code = None
-
+        url = 'https://ident.familysearch.org/ylord-I-must-theere-And-to-quen-speace-and-the-f'
+        r=self.session.get(url, allow_redirects=False)
         headers = {"Accept": "application/json"}
         headers.update ( {"Content-Type": "application/x-www-form-urlencoded"})
         data = {
