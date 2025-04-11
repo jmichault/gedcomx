@@ -1,5 +1,5 @@
 
-__version__='1.0.23'
+__version__='1.0.24'
 
 from .gedcomx import *
 from .json import jsonigi, maljsonigi

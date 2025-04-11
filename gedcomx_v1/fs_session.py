@@ -3,7 +3,10 @@ import sys
 import time
 
 import requests
-import urllib
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
 
 STATO_INIT = 0
 STATO_LOGIN = 1
@@ -109,7 +112,8 @@ class FsSession:
                    "password": self.password,
                  }
         url = 'https://ident.familysearch.org/cis-web/oauth2/v3/token'
-        r = self.session.post(url,data)
+        headers = {"Accept": "application/json","Content-Type": "application/x-www-form-urlencoded"}
+        r = self.session.post(url,data,headers=headers)
         if vorteco :
           print(" étape anon, r="+str(r))
           print("        , r.text="+r.text)
@@ -128,20 +132,20 @@ class FsSession:
         self.logged = False
         self.stato = STATO_LOGIN
         url = "https://www.familysearch.org/"
-        r = self.session.get(url)
-        # étape 1 : on appelle login, qui redirige vers authorization puis authorize, pour récupérer XSRF-TOKEN et client_id
+        r = self.session.get(url, verify=False)
+        # étape 2 : on appelle login, qui redirige vers authorization puis authorize, pour récupérer XSRF-TOKEN et client_id
         url = "https://www.familysearch.org/auth/familysearch/login"
-        r = self.session.get(url)
+        r = self.session.get(url,verify=False)
         self.xsrf = self.session.cookies["XSRF-TOKEN"]
         self.write_log("xsrf="+self.xsrf)
-        # étape 2 : on appelle /login
+        # étape 3 : on appelle /login
         url = "https://ident.familysearch.org/login"
         r = self.session.post(url,data= {
                 "_csrf": self.xsrf,
                 "username": self.username,
                 "password": self.password,
                })
-        # étape 3 : on suit redirectUrl pour valider
+        # étape 4 : on suit redirectUrl pour valider
         try:
           data = r.json()
           if "loginError" in data:
@@ -167,19 +171,32 @@ class FsSession:
         # voir https://github.com/misbach/fs-auth/blob/master/index_raw.html
         self.logged = False
         self.stato = STATO_LOGIN
-        if not self.xsrf :
-          self.login()
-        # étape 2
-        url = 'https://ident.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&scope=openid profile email qualifies_for_affiliate_account country&client_id='+appKey+'&redirect_uri='+redirect
-        r=self.session.get(url, allow_redirects=False)
-        loc=r.next.url
+        # étape 1 : on appelle login, qui redirige vers authorization puis authorize, pour récupérer XSRF-TOKEN
+        url = "https://www.familysearch.org/auth/familysearch/login"
+        r = self.session.get(url,verify=False)
+        self.xsrf = self.session.cookies["XSRF-TOKEN"]
+        self.write_log("xsrf="+self.xsrf)
+        # étape 2 : on appelle https://ident.familysearch.org/login
+        url = "https://ident.familysearch.org/login"
+        r = self.session.post(url,data= {
+                "_csrf": self.xsrf,
+                "username": self.username,
+                "password": self.password,
+               }
+            )
+        # étape 3 : on appelle https://ident.familysearch.org/cis-web/oauth2/v3/authorization pour récupérer code
+        code = None
+        url = 'https://ident.familysearch.org/cis-web/oauth2/v3/authorization?response_type=code&scope=profile%20email%20qualifies_for_affiliate_account%20country&client_id='+appKey+'&redirect_uri='+redirect+'&username='+self.username
+        print(" url1 = "+url)
+        r=self.session.get(url )
+        loc=r.url
         poscode=loc.find('code=')
-        if poscode :
-          code= loc[poscode+5:]
+        if poscode >0 :
+            code= loc[poscode+5:]
         else :
-          code = None
-        url = 'https://ident.familysearch.org/ylord-I-must-theere-And-to-quen-speace-and-the-f'
-        r=self.session.get(url, allow_redirects=False)
+            print("   code pas trouvé…")
+            return False
+        # étape 4 : on appelle https://ident.familysearch.org/cis-web/oauth2/v3/token pour obtenir le token
         headers = {"Accept": "application/json"}
         headers.update ( {"Content-Type": "application/x-www-form-urlencoded"})
         data = {
@@ -236,7 +253,7 @@ class FsSession:
                     headers=headers,
                     #cookies=cookies,
                     data=datumoj,
-                    allow_redirects=False
+                    allow_redirects=False,verify=False
                 )
             except requests.exceptions.ReadTimeout:
                 self.write_log("Read timed out")
