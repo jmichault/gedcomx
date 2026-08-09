@@ -19,10 +19,24 @@
 
 from collections import ChainMap
 
+try:
+    from annotationlib import get_annotations
+except ImportError:
+    from inspect import get_annotations
+
+
 def all_annotations(klaso) -> ChainMap:
-    """Liveras vortar-similan ChainMap kiu inkluzivas komentadojn por ĉiuj
-        atributoj difinitaj en klaso aŭ hereditaj de superklasoj."""
-    return ChainMap(*(k.__annotations__ for k in klaso.__mro__ if '__annotations__' in k.__dict__) )
+    """Return annotations defined by the class and its base classes."""
+    annotations = []
+    for base_class in klaso.__mro__:
+        try:
+            class_annotations = get_annotations(base_class, eval_str=True)
+        except (NameError, TypeError, AttributeError):
+            class_annotations = {}
+        if class_annotations:
+            annotations.append(class_annotations)
+    return ChainMap(*annotations)
+
 
 def klaso_ini(obj):
   for atr,k2 in all_annotations(obj.__class__).items() :
